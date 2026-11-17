@@ -44,7 +44,7 @@ main { max-width:1600px; margin:auto; padding:0 5%; }
 .state-panel summary { cursor:pointer; }.state-panel p { line-height:1.8; }.state-panel pre { max-height:300px; overflow:auto; padding:18px; background:var(--surface); }
 .task.dragging { opacity:.25; }
 .canvas-column.drop-column { outline:2px dashed var(--accent); outline-offset:-2px; }
-.drag-preview { position:fixed; transform:translate(-50%,-50%) rotate(-3deg); pointer-events:none; z-index:40; width:240px; padding:20px; border:1px solid var(--accent); border-radius:9px; background:var(--surface); color:var(--ink); box-shadow:0 15px 40px #0e254d30; font-size:13px; }
+.drag-preview { position:fixed; transform:translate(-50%,-50%) rotate(-3deg); pointer-events:none; z-index:50; width:240px; padding:20px; border:1px solid var(--accent); border-radius:9px; background:var(--surface); color:var(--ink); box-shadow:0 15px 40px #0e254d30; font-size:13px; }
 .trash-target { position:fixed; z-index:45; bottom:28px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; width:190px; height:100px; border:2px dashed #e07979; background:#fff0f0; color:#bd3434; border-radius:18px; box-shadow:0 8px 35px #761b1b18; transition:background .15s,scale .15s; }
 .trash-target span { font-size:11px; pointer-events:none; }.trash-target svg { pointer-events:none; }
 .trash-target.trash-active { background:#d83b3b; border-color:#d83b3b; color:white; scale:1.08; }
