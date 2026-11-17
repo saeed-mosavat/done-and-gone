@@ -26,6 +26,18 @@ export default function BoardView() {
     fallback: string;
   } | null>(null);
   useEffect(() => {
+    function closeOutsideMenus(event: PointerEvent) {
+      if (!(event.target instanceof Node)) return;
+      for (const menu of document.querySelectorAll<HTMLDetailsElement>(
+        ".column-actions[open]"
+      )) {
+        if (!menu.contains(event.target)) menu.open = false;
+      }
+    }
+    document.addEventListener("pointerdown", closeOutsideMenus);
+    return () => document.removeEventListener("pointerdown", closeOutsideMenus);
+  }, []);
+  useEffect(() => {
     if (!saving && pendingFocus.current) {
       const { primary, fallback } = pendingFocus.current;
       (
@@ -179,7 +191,11 @@ export default function BoardView() {
                     >
                       ⋯
                     </summary>
-                    <div className="column-actions-panel">
+                    <div
+                      className="column-actions-panel"
+                      role="group"
+                      aria-label="Column options"
+                    >
                       <button
                         tabIndex={0}
                         disabled={saving}
@@ -191,6 +207,20 @@ export default function BoardView() {
                           setColumnEditor({ column });
                         }}
                       >
+                        <svg
+                          aria-hidden="true"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="m16 3 5 5-12 12-6 1 1-6L16 3Z M13 6l5 5" />
+                        </svg>
                         Rename column
                       </button>
                       <button
@@ -204,6 +234,20 @@ export default function BoardView() {
                           setDeletingColumn(column);
                         }}
                       >
+                        <svg
+                          aria-hidden="true"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" />
+                        </svg>
                         Delete column
                       </button>
                       {board.columns.length === 1 && (
@@ -268,7 +312,20 @@ export default function BoardView() {
                 setColumnEditor({});
               }}
             >
-              + Add column
+              <svg
+                aria-hidden="true"
+                focusable="false"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              <span>Add column</span>
             </button>
           </div>
           <p className="save-status" role="status">

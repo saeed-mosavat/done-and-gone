@@ -19,7 +19,8 @@
 - The board follows directly below the header. No page title, hero, subtitle, tagline, sidebar, dashboard, or global New card banner.
 - Side-by-side columns occupy the available board area, with generous vertical space. Narrow viewports scroll columns horizontally instead of stacking them vertically.
 - Each column header shows a subtle colored dot, its user-defined name, a card count, and an add-card button. A second Add a card action follows its cards.
-- An Add column action follows the last column on the right.
+- A narrow, borderless Add column action follows the last column on the right, with a plus icon above a vertically oriented label, as shown in the visual references.
+- Column contextual actions pair icons with text labels. Clicking or tapping outside an open column menu closes it without blocking the outside action.
 - Cards show their title and optional description. The entire card opens the editor. No Open card label, decorative ellipsis, or card footer is needed.
 - Do not infer fixed status semantics from column names or positions: columns are customizable. The prototype's muted Done cards are illustrative, not a requirement to mark a renamed or third column completed.
 

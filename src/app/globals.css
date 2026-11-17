@@ -208,13 +208,20 @@ button:focus-visible {
   padding: 14px;
 }
 .add-column {
-  flex: 0 0 145px;
+  display: flex;
+  flex: 0 0 44px;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   align-self: flex-start;
-  padding: 22px 12px;
+  padding: 22px 10px;
   color: var(--muted);
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  font-size: 13px;
+  border-radius: 8px;
+  font-size: 11px;
+}
+.add-column span {
+  writing-mode: vertical-rl;
+  letter-spacing: 0.6px;
 }
 .add-column:hover {
   background: var(--tint);
@@ -262,12 +269,17 @@ button:focus-visible {
   box-shadow: 0 4px 18px #10182718;
 }
 .column-actions-panel button {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   text-align: left;
   padding: 12px;
   font-size: 13px;
   border-radius: 6px;
+}
+.column-actions-panel svg {
+  flex-shrink: 0;
 }
 .column-actions-panel button:hover {
   background: var(--tint);

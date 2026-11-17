@@ -27,6 +27,75 @@ const populatedBoard = {
   ],
 };
 
+test("column menus close on outside clicks without swallowing the clicked action", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const todo = page.getByRole("region", { name: "Todo", exact: true });
+  const doing = page.getByRole("region", { name: "Doing", exact: true });
+  const rename = todo.getByRole("button", {
+    name: "Rename column",
+    exact: true,
+  });
+  await todo.getByLabel("Column actions", { exact: true }).click();
+  await expect(rename).toBeVisible();
+  await page.getByRole("heading", { level: 1 }).click();
+  await expect(rename).toBeHidden();
+  await todo.getByLabel("Column actions", { exact: true }).click();
+  await doing.getByLabel("Column actions", { exact: true }).click();
+  await expect(rename).toBeHidden();
+  await expect(
+    doing.getByRole("button", { name: "Rename column", exact: true })
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Toggle theme" }).click();
+  await expect(
+    doing.getByRole("button", { name: "Rename column", exact: true })
+  ).toBeHidden();
+  await expect(page.getByRole("main")).toHaveCSS("color-scheme", "dark");
+});
+
+test("Add column is a borderless vertical action with a plus icon", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const add = page.getByRole("button", { name: "Add column", exact: true });
+  await expect(add).toHaveCSS("border-top-width", "0px");
+  await expect(add.getByText("Add column", { exact: true })).toHaveCSS(
+    "writing-mode",
+    "vertical-rl"
+  );
+  await expect(add.locator("svg")).toHaveAttribute("aria-hidden", "true");
+  await add.press("Enter");
+  await expect(page.getByRole("dialog", { name: "New column" })).toBeVisible();
+});
+
+test("column menu icons keep their text labels and match both themes at narrow widths", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const column = page.getByRole("region", { name: "Todo", exact: true });
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 960 });
+    for (const colorScheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme });
+      await column.getByLabel("Column actions", { exact: true }).press("Enter");
+      for (const name of ["Rename column", "Delete column"]) {
+        await expect(
+          column.getByRole("button", { name, exact: true }).locator("svg")
+        ).toHaveAttribute("aria-hidden", "true");
+      }
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      await expect(
+        column.getByRole("group", { name: "Column options", exact: true })
+      ).toHaveScreenshot(`column-menu-${width}-${colorScheme}.png`);
+      await page.getByRole("heading", { level: 1 }).click();
+      await expect(
+        page.getByRole("button", { name: "Add column", exact: true })
+      ).toHaveScreenshot(`add-column-${width}-${colorScheme}.png`);
+    }
+  }
+});
+
 for (const action of ["transfer", "delete all"]) {
   test(`keyboard-only ${action} supports choice, cancellation, confirmation, and focus return`, async ({
     page,
@@ -258,6 +327,25 @@ test("column name drafts can be cancelled without changing saved data", async ({
 
 test.describe("touch column controls", () => {
   test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
+  test("tapping outside a column menu dismisses it while menu actions still work", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const column = page.getByRole("region", { name: "Todo", exact: true });
+    await column.getByLabel("Column actions", { exact: true }).tap();
+    const rename = column.getByRole("button", {
+      name: "Rename column",
+      exact: true,
+    });
+    await expect(rename).toBeVisible();
+    await page.getByRole("heading", { level: 1 }).tap();
+    await expect(rename).toBeHidden();
+    await column.getByLabel("Column actions", { exact: true }).tap();
+    await rename.tap();
+    await expect(
+      page.getByRole("dialog", { name: "Rename column" })
+    ).toBeVisible();
+  });
   test("adding, renaming, and deleting remain usable on a horizontally scrolling board", async ({
     page,
   }) => {
