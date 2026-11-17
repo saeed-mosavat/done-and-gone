@@ -9,7 +9,7 @@ export function containDialogFocus(
   )
     return;
   const controls = event.currentTarget.querySelectorAll<HTMLElement>(
-    "button, input, textarea"
+    "button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled)"
   );
   const first = controls[0];
   const last = controls[controls.length - 1];
@@ -29,6 +29,7 @@ export function Confirmation({
   cancelLabel,
   onConfirm,
   onCancel,
+  confirmDisabled = false,
 }: {
   title: string;
   children?: React.ReactNode;
@@ -36,12 +37,14 @@ export function Confirmation({
   cancelLabel: string;
   onConfirm: () => void;
   onCancel: () => void;
+  confirmDisabled?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const element = ref.current!;
     const opener = document.activeElement;
     element.showModal();
+    element.querySelector<HTMLButtonElement>(".dialog-actions button")!.focus();
     return () => {
       element.close();
       if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
@@ -64,10 +67,15 @@ export function Confirmation({
       </h2>
       {children}
       <div className="dialog-actions">
-        <button autoFocus onClick={onCancel}>
+        <button tabIndex={0} autoFocus onClick={onCancel}>
           {cancelLabel}
         </button>
-        <button className="danger" onClick={onConfirm}>
+        <button
+          tabIndex={0}
+          className="danger"
+          disabled={confirmDisabled}
+          onClick={onConfirm}
+        >
           {confirmLabel}
         </button>
       </div>

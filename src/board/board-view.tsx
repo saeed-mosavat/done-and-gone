@@ -4,40 +4,52 @@ import { useEffect, useRef, useState } from "react";
 import {
   type Board,
   type Card,
+  type Column,
   BoardSaveError,
   loadBoard,
   saveBoard,
 } from "./storage";
 import { CardEditor } from "./card-editor";
+import { ColumnEditor } from "./column-editor";
+import { ColumnDeletion } from "./column-deletion";
 
 export default function BoardView() {
   const [board, setBoard] = useState<Board>();
   const [failure, setFailure] = useState<string>();
   const [theme, setTheme] = useState<"light" | "dark">();
   const [editor, setEditor] = useState<{ columnId: string; card?: Card }>();
+  const [columnEditor, setColumnEditor] = useState<{ column?: Column }>();
+  const [deletingColumn, setDeletingColumn] = useState<Column>();
   const [saving, setSaving] = useState(false);
   const pendingFocus = useRef<{
-    primary: HTMLElement | null;
-    fallback: HTMLElement | null;
+    primary?: string;
+    fallback: string;
   } | null>(null);
   useEffect(() => {
     if (!saving && pendingFocus.current) {
       const { primary, fallback } = pendingFocus.current;
-      (primary?.isConnected ? primary : fallback)?.focus();
+      (
+        document.getElementById(primary ?? "") ??
+        document.getElementById(fallback)
+      )?.focus();
       pendingFocus.current = null;
     }
   }, [saving]);
 
-  async function commit(next: Board) {
-    if (editor)
+  async function commit(
+    next: Board,
+    focus?: { primary?: string; fallback: string }
+  ) {
+    if (focus) pendingFocus.current = focus;
+    else if (editor)
       pendingFocus.current = {
-        primary: editor.card
-          ? document.getElementById(`card-${editor.card.id}`)
-          : null,
-        fallback: document.getElementById(`add-${editor.columnId}`),
+        primary: editor.card ? `card-${editor.card.id}` : undefined,
+        fallback: `add-${editor.columnId}`,
       };
     setBoard(next);
     setEditor(undefined);
+    setColumnEditor(undefined);
+    setDeletingColumn(undefined);
     setSaving(true);
     try {
       await saveBoard(next);
@@ -159,6 +171,48 @@ export default function BoardView() {
                   >
                     +
                   </button>
+                  <details className="column-actions">
+                    <summary
+                      tabIndex={0}
+                      id={`column-actions-${column.id}`}
+                      aria-label="Column actions"
+                    >
+                      ⋯
+                    </summary>
+                    <div className="column-actions-panel">
+                      <button
+                        tabIndex={0}
+                        disabled={saving}
+                        onClick={(event) => {
+                          event.currentTarget.closest("details")!.open = false;
+                          document
+                            .getElementById(`column-actions-${column.id}`)!
+                            .focus();
+                          setColumnEditor({ column });
+                        }}
+                      >
+                        Rename column
+                      </button>
+                      <button
+                        tabIndex={0}
+                        disabled={saving || board.columns.length === 1}
+                        onClick={(event) => {
+                          event.currentTarget.closest("details")!.open = false;
+                          document
+                            .getElementById(`column-actions-${column.id}`)!
+                            .focus();
+                          setDeletingColumn(column);
+                        }}
+                      >
+                        Delete column
+                      </button>
+                      {board.columns.length === 1 && (
+                        <p className="column-action-hint">
+                          Keep at least one column.
+                        </p>
+                      )}
+                    </div>
+                  </details>
                 </div>
                 {column.cards.map((card) => (
                   <article className="card" key={card.id}>
@@ -204,6 +258,18 @@ export default function BoardView() {
                 </button>
               </section>
             ))}
+            <button
+              id="board-add-column"
+              className="add-column"
+              aria-label="Add column"
+              disabled={saving}
+              onClick={(event) => {
+                event.currentTarget.focus();
+                setColumnEditor({});
+              }}
+            >
+              + Add column
+            </button>
           </div>
           <p className="save-status" role="status">
             {saving ? "Saving…" : "Saved on this device"}
@@ -239,6 +305,73 @@ export default function BoardView() {
                       : column
                   ),
                 });
+              }}
+            />
+          )}
+          {columnEditor && (
+            <ColumnEditor
+              initialName={columnEditor.column?.name}
+              onClose={() => setColumnEditor(undefined)}
+              onSave={(name) => {
+                const column: Column = columnEditor.column
+                  ? { ...columnEditor.column, name }
+                  : { id: crypto.randomUUID(), name, cards: [] };
+                void commit(
+                  {
+                    ...board,
+                    columns: columnEditor.column
+                      ? board.columns.map((existing) =>
+                          existing.id === column.id ? column : existing
+                        )
+                      : [...board.columns, column],
+                  },
+                  {
+                    primary: columnEditor.column
+                      ? `column-actions-${column.id}`
+                      : `add-${column.id}`,
+                    fallback: "board-add-column",
+                  }
+                );
+              }}
+            />
+          )}
+          {deletingColumn && (
+            <ColumnDeletion
+              column={deletingColumn}
+              columns={board.columns}
+              onCancel={() => setDeletingColumn(undefined)}
+              onConfirm={(destinationId) => {
+                if (
+                  board.columns.length === 1 ||
+                  (destinationId &&
+                    !board.columns.some(
+                      (column) =>
+                        column.id === destinationId &&
+                        column.id !== deletingColumn.id
+                    ))
+                )
+                  return;
+                void commit(
+                  {
+                    ...board,
+                    columns: board.columns
+                      .filter((column) => column.id !== deletingColumn.id)
+                      .map((column) =>
+                        column.id === destinationId
+                          ? {
+                              ...column,
+                              cards: [...column.cards, ...deletingColumn.cards],
+                            }
+                          : column
+                      ),
+                  },
+                  {
+                    primary: destinationId
+                      ? `column-actions-${destinationId}`
+                      : undefined,
+                    fallback: "board-add-column",
+                  }
+                );
               }}
             />
           )}

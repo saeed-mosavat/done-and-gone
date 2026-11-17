@@ -1,6 +1,6 @@
 # Doneward
 
-A local-first personal task board. Open a single board on this device, add cards within each column, and open any card to edit or delete it. Card drafts require explicit Save; dismissing changed drafts asks before discarding. Committed changes save automatically to IndexedDB. Column management and the remaining v1 features are separate slices.
+A local-first personal task board. Open a single board on this device, add cards within each column, and open any card to edit or delete it. Card drafts require explicit Save; dismissing changed drafts asks before discarding. Add columns on the right; use each column's contextual actions to rename it or confirm deletion, choosing whether to transfer or delete its cards. At least one column always remains. Committed changes save automatically to IndexedDB. Dragging, reordering, backups, and the remaining v1 features are separate slices.
 
 ## Development
 
@@ -34,7 +34,7 @@ Partially staged files are handled by lint-staged: unstaged changes are hidden d
 
 The `Quality` GitHub Actions workflow independently checks formatting, lint, types, and the production build on pushes and pull requests. Browser tests remain local because the reviewed visual baselines are macOS-specific. To enforce checks before merging, configure a GitHub branch ruleset requiring `Format, lint, types, and build` and pull requests. Local hooks are a guardrail, not a security boundary: Git permits bypassing them.
 
-Visual baselines under `tests/board.spec.ts-snapshots/` cover mixed-direction content in both themes at desktop and narrow widths. The checked-in baselines are for macOS. Review changes against `docs/design/board.md` before updating them with `npm test -- -g canvas --update-snapshots`; other platforms need their own reviewed baselines.
+Visual baselines under `tests/*-snapshots/` cover the board, card/column dialogs, and mixed-direction content in both themes at desktop and narrow widths. The checked-in baselines are for macOS. Review changes against `docs/design/board.md` before updating the relevant test's snapshots with `--update-snapshots`; other platforms need their own reviewed baselines.
 
 ## Local storage
 
