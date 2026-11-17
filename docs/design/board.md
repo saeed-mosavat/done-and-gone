@@ -29,15 +29,15 @@ Use a blue-toned visual system: cool near-white page background, pale blue colum
 
 Reference tokens from the approved prototype:
 
-| Role | Light | Dark |
-| --- | --- | --- |
-| Page | `#f5f8fc` | `#101827` |
-| Card/dialog | `#ffffff` | `#1b2940` |
-| Primary text | `#20324d` | `#e2ebfa` |
+| Role           | Light     | Dark      |
+| -------------- | --------- | --------- |
+| Page           | `#f5f8fc` | `#101827` |
+| Card/dialog    | `#ffffff` | `#1b2940` |
+| Primary text   | `#20324d` | `#e2ebfa` |
 | Secondary text | `#7587a1` | `#91a5c3` |
-| Border | `#dce5f1` | `#2a3b56` |
-| Accent | `#3973d6` | `#88b4ff` |
-| Tint | `#e9f0fb` | `#17263f` |
+| Border         | `#dce5f1` | `#2a3b56` |
+| Accent         | `#3973d6` | `#88b4ff` |
+| Tint           | `#e9f0fb` | `#17263f` |
 
 These are starting tokens, not a completed accessibility audit. Adjust contrast where necessary while preserving the approved blue direction. Use understated borders and shadows, rounded cards/columns, compact sans-serif typography, and clear keyboard focus.
 

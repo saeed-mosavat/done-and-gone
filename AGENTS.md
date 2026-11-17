@@ -1,15 +1,23 @@
 ## Agent skills
 
+### Commit checks
+
+Before changing code or committing, read the formatting and commits section in `README.md`. Keep Husky hooks enabled; resolve failed checks before committing. Changes to hook or quality-check configuration require an explicit tooling task.
+
 ### Issue tracker
+
 Issues and specs live in GitHub Issues. Before reading or publishing tickets, see `docs/agents/issue-tracker.md`.
 
 ### Triage labels
+
 Before triaging issues, see `docs/agents/triage-labels.md` for the five default labels.
 
 ### Domain docs
+
 Single-context layout. Before exploring code or proposing domain changes, see `docs/agents/domain.md`.
 
 ### Approved board design
+
 Before planning tickets, implementing board UI, or writing UI tests, read `docs/design/board.md`. Carry its relevant requirements into ticket acceptance criteria and tests. Treat the archived prototype as a visual reference, not production code.
 
 <!-- BEGIN:nextjs-agent-rules -->
