@@ -53,6 +53,7 @@ These are starting tokens, not a completed accessibility audit. Adjust contrast 
 - Starting a card drag reveals a fixed red trash-bin drop area near the bottom center of the viewport, similar to removing an app from an Android home screen.
 - The resting target has a red bin icon, a pale red background, a dashed red border, and Drop here to delete text.
 - Hovering the dragged card over the target visibly strengthens it: solid red background, light icon/text, and Release to delete text.
+- The dragged card stays visually above the trash target, including its active state, while remaining pointer-transparent so the target can detect hovering and drops.
 - Releasing over the target opens the normal deletion confirmation, including the card title. Confirming deletes; cancelling leaves the card and its order unchanged.
 - Releasing elsewhere must not delete. Hide the target when the drag ends or is cancelled.
 - The bin is a deletion gesture, **not** a trash/recycle-bin feature. Deleted cards do not enter a recoverable collection; trash history and undo remain out of scope.
