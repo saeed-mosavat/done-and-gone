@@ -1,6 +1,6 @@
 # Doneward
 
-A local-first personal task board. This foundation implements [ticket #2](https://github.com/saeed-mosavat/doneward/issues/2): opening, validating, saving, and displaying a single board on this device. Card editing and the remaining v1 features are separate slices.
+A local-first personal task board. Open a single board on this device, add cards within each column, and open any card to edit or delete it. Card drafts require explicit Save; dismissing changed drafts asks before discarding. Committed changes save automatically to IndexedDB. Column management and the remaining v1 features are separate slices.
 
 ## Development
 

@@ -299,7 +299,12 @@ test("the blue board-first canvas keeps columns side by side on desktop and narr
   await expect(page.getByLabel("2 cards", { exact: true })).toHaveText("2");
   await expect(page.getByLabel("1 cards", { exact: true })).toHaveText("1");
   await expect(page.getByLabel("0 cards", { exact: true })).toHaveText("0");
-  await expect(page.getByRole("button")).toHaveCount(1);
+  await expect(
+    page.getByRole("button", { name: "Add card", exact: true })
+  ).toHaveCount(3);
+  await expect(
+    page.getByRole("button", { name: "Add a card", exact: true })
+  ).toHaveCount(3);
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 960 });
     const first = await columns
