@@ -2,6 +2,28 @@ import { expect, test } from "@playwright/test";
 import { seedBoard } from "./storage-fixture";
 import AxeBuilder from "@axe-core/playwright";
 
+test("the loading state is accessible while storage is opening", async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = IDBFactory.prototype.open;
+    IDBFactory.prototype.open = function (...args) {
+      const request = original.apply(this, args);
+      request.addEventListener("success", (event) => {
+        event.stopImmediatePropagation();
+        request.result.close();
+      });
+      return request;
+    };
+  });
+  await page.goto("/");
+  await expect(page.getByRole("status")).toHaveText("Opening your board…");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "Toggle theme" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("main")).toHaveCSS("color-scheme", "dark");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+});
+
 test("a first visit saves the starter board and keeps it across reloads", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 2 })).toHaveText(["Todo", "Doing", "Done"]);
@@ -31,6 +53,10 @@ test("invalid saved data is not rendered or replaced with a starter board", asyn
   await expect(page.getByRole("main").getByRole("alert")).toContainText("could not be opened");
   await expect(page.getByRole("status")).toHaveCount(0);
   await expect(page.getByRole("article")).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.getByRole("button", { name: "Toggle theme" }).press("Enter");
+  await expect(page.getByRole("main")).toHaveCSS("color-scheme", "dark");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.reload();
   await expect(page.getByRole("main").getByRole("alert")).toContainText("Existing data has not been replaced");
 });
@@ -150,6 +176,29 @@ test("the blue board-first canvas keeps columns side by side on desktop and narr
   }
 });
 
+test("the starter board matches the approved direction in both themes and narrow layouts", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("status")).toHaveText("Saved on this device");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Doneward.");
+  await expect(page.getByRole("heading", { level: 2 })).toHaveText(["Todo", "Doing", "Done"]);
+  await expect(page.getByRole("article")).toHaveCount(1);
+  await expect(page.getByLabel("1 cards", { exact: true })).toHaveCount(1);
+  await expect(page.getByLabel("0 cards", { exact: true })).toHaveCount(2);
+  const board = page.getByRole("region", { name: "Board", exact: true });
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 960 });
+    if (width === 390) {
+      expect(await board.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+    }
+    for (const colorScheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme });
+      await expect(page.getByRole("main")).toHaveScreenshot(`starter-${width}-${colorScheme}.png`, {
+        animations: "disabled",
+      });
+    }
+  }
+});
+
 test("a failed storage read never replaces an existing saved board", async ({ page }) => {
   await seedBoard(page, { version: 1, columns: [
     { id: "safe", name: "Keep my board", cards: [{ id: "safe-card", title: "Still here" }] },
@@ -199,6 +248,10 @@ test("a transaction aborted after its write request succeeds is never reported a
   await page.goto("/");
   await expect(page.getByRole("main").getByRole("alert")).toContainText("could not be saved");
   await expect(page.getByRole("status")).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.getByRole("button", { name: "Toggle theme" }).press("Enter");
+  await expect(page.getByRole("main")).toHaveCSS("color-scheme", "dark");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.evaluate(() => sessionStorage.setItem("allow-write", "yes"));
   await page.reload();
   await expect(page.getByRole("article")).toHaveCount(1);
