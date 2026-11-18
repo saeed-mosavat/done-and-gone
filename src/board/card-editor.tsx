@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Card } from "./storage";
+import type { Card, Column } from "./storage";
 import { Confirmation, containDialogFocus } from "./confirmation";
 
 export function CardEditor({
@@ -7,11 +7,15 @@ export function CardEditor({
   onClose,
   onSave,
   onDelete,
+  columns,
+  columnId,
 }: {
   card?: Card;
   onClose: () => void;
-  onSave: (card: Card) => void;
+  onSave: (card: Card, columnId: string, position: number) => void;
   onDelete: () => void;
+  columns: Column[];
+  columnId: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [title, setTitle] = useState(card?.title ?? "");
@@ -19,10 +23,22 @@ export function CardEditor({
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [validation, setValidation] = useState<string>();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const initialPosition = card
+    ? columns
+        .find((column) => column.id === columnId)!
+        .cards.findIndex((existing) => existing.id === card.id)
+    : 0;
+  const [destination, setDestination] = useState(columnId);
+  const [position, setPosition] = useState(initialPosition);
+  const destinationCards = columns
+    .find((column) => column.id === destination)!
+    .cards.filter((existing) => existing.id !== card?.id);
   function dismiss() {
     if (
       title !== (card?.title ?? "") ||
-      description !== (card?.description ?? "")
+      description !== (card?.description ?? "") ||
+      destination !== columnId ||
+      position !== initialPosition
     )
       setConfirmDiscard(true);
     else onClose();
@@ -73,11 +89,15 @@ export function CardEditor({
             dialog.current!.querySelector("textarea")!.focus();
             return;
           }
-          onSave({
-            id: card?.id ?? crypto.randomUUID(),
-            title: title.trim(),
-            description,
-          });
+          onSave(
+            {
+              id: card?.id ?? crypto.randomUUID(),
+              title: title.trim(),
+              description,
+            },
+            destination,
+            position
+          );
         }}
       >
         <div className="dialog-header">
@@ -102,6 +122,50 @@ export function CardEditor({
           onChange={(event) => setDescription(event.target.value)}
         />
         {validation && <p role="alert">{validation}</p>}
+        {card && (
+          <>
+            <label htmlFor="card-column">Column</label>
+            <select
+              id="card-column"
+              value={destination}
+              onChange={(event) => {
+                const id = event.target.value;
+                setDestination(id);
+                setPosition(
+                  columns
+                    .find((column) => column.id === id)!
+                    .cards.filter((existing) => existing.id !== card.id).length
+                );
+              }}
+            >
+              {columns.map((column, index) => (
+                <option key={column.id} value={column.id} dir="auto">
+                  {index + 1}. {column.name}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="card-position">Position</label>
+            <select
+              id="card-position"
+              value={position}
+              onChange={(event) => setPosition(Number(event.target.value))}
+            >
+              {Array.from(
+                { length: destinationCards.length + 1 },
+                (_, index) => (
+                  <option key={index} value={index}>
+                    {index + 1}
+                    {index === 0
+                      ? " (first)"
+                      : index === destinationCards.length
+                        ? " (last)"
+                        : ""}
+                  </option>
+                )
+              )}
+            </select>
+          </>
+        )}
         <div className="dialog-actions">
           {card && (
             <button

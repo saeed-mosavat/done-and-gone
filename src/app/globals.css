@@ -329,6 +329,76 @@ button:disabled {
 .card-open:focus-visible {
   outline-offset: 2px;
 }
+.drag-handle {
+  touch-action: none;
+  cursor: grab;
+  color: var(--muted);
+  border-radius: 5px;
+  padding: 4px;
+  font-size: 16px;
+}
+.column-drag-handle {
+  flex-shrink: 0;
+}
+.card-drag-handle {
+  position: absolute;
+  right: 4px;
+  top: 3px;
+}
+.card h3 {
+  padding-right: 12px;
+}
+.card[data-dragging] {
+  opacity: 0.45;
+}
+.card[data-drop-before] {
+  box-shadow: 0 -4px 0 var(--accent);
+}
+.column[data-drop="card"] {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.column[data-drop="column"] {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+}
+.drag-preview {
+  position: fixed;
+  z-index: 30;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 16px)) rotate(-2deg);
+  width: min(260px, 70vw);
+  padding: 20px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 12px 30px #10182744;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.delete-drop-zone {
+  position: fixed;
+  z-index: 20;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border: 2px dashed #b42336;
+  border-radius: 16px;
+  background: #fff0f1;
+  color: #a1182c;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.delete-drop-zone[data-active="true"] {
+  background: #b42336;
+  border-style: solid;
+  color: white;
+}
 .dialog-actions .danger {
   background: #b42336;
   color: white;

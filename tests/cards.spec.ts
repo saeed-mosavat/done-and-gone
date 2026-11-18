@@ -40,7 +40,9 @@ test("saving and deleting return keyboard focus to the card or its column", asyn
   page,
 }) => {
   await page.goto("/");
-  const card = page.getByRole("article").getByRole("button");
+  const card = page
+    .getByRole("article")
+    .getByRole("button", { name: /^Edit / });
   await card.press("Enter");
   await page.getByLabel("Title", { exact: true }).fill("Focus card");
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
@@ -72,7 +74,10 @@ test("failed card writes never report saved and leave the last saved board intac
       return request;
     };
   });
-  await page.getByRole("article").getByRole("button").click();
+  await page
+    .getByRole("article")
+    .getByRole("button", { name: /^Edit / })
+    .click();
   await page.getByLabel("Title", { exact: true }).fill("Not saved");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
@@ -126,7 +131,11 @@ test("mixed-direction dialogs are accessible in both themes and narrow layouts",
     .press("Enter");
   await expect(page.getByRole("status")).toHaveText("Saved on this device");
   await page.reload();
-  await page.getByRole("article").first().getByRole("button").press("Enter");
+  await page
+    .getByRole("article")
+    .first()
+    .getByRole("button", { name: /^Edit / })
+    .press("Enter");
   await page
     .getByRole("button", { name: "Delete card", exact: true })
     .press("Enter");
@@ -155,7 +164,10 @@ test("deletion names the card, cancels safely, and an emptied board stays empty"
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("article").getByRole("button").click();
+  await page
+    .getByRole("article")
+    .getByRole("button", { name: /^Edit / })
+    .click();
   await page.getByRole("button", { name: "Delete card", exact: true }).click();
   const confirmation = page.getByRole("dialog", { name: "Delete card?" });
   await expect(confirmation).toContainText("Welcome to Doneward");
@@ -233,8 +245,8 @@ test("whole-card editing saves explicitly and every dismissal protects dirty dra
   await editor.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.getByRole("button", { name: "Discard changes" }).click();
   await expect(card).toContainText("Welcome to Doneward");
-  await expect(card.getByRole("button")).toBeFocused();
-  await card.getByRole("button").press("Enter");
+  await expect(card.getByRole("button", { name: /^Edit / })).toBeFocused();
+  await card.getByRole("button", { name: /^Edit / }).press("Enter");
   await editor.getByLabel("Title", { exact: true }).fill("  Edited  ");
   await editor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByRole("status")).toHaveText("Saved on this device");
@@ -273,7 +285,11 @@ test("both column-scoped entry points append cards and persist their order", asy
   expect(
     await column.getByRole("article").first().locator("div").textContent()
   ).toBe("  Plain <b>text</b>\t\n\nپایان UI 42.  ");
-  await column.getByRole("article").first().getByRole("button").click();
+  await column
+    .getByRole("article")
+    .first()
+    .getByRole("button", { name: /^Edit / })
+    .click();
   await expect(page.getByLabel("Description", { exact: true })).toHaveValue(
     "  Plain <b>text</b>\t\n\nپایان UI 42.  "
   );

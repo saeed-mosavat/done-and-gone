@@ -1,6 +1,6 @@
 # Doneward
 
-A local-first personal task board. Open a single board on this device, add cards within each column, and open any card to edit or delete it. Card drafts require explicit Save; dismissing changed drafts asks before discarding. Add columns on the right; use each column's contextual actions to rename it or confirm deletion, choosing whether to transfer or delete its cards. At least one column always remains. Committed changes save automatically to IndexedDB. Dragging, reordering, backups, and the remaining v1 features are separate slices.
+A local-first personal task board. Open a single board on this device, add cards within each column, and open any card to edit, move, reorder, or delete it. Card drafts require explicit Save; dismissing changed drafts asks before discarding. Drag cards between columns, reorder cards or columns using their handles, or use the card editor and column menus without dragging. Dragging a card to the red delete zone asks for confirmation; cancellation preserves its original position. Touch handles leave card content available for scrolling. Add columns on the right; use each column's contextual actions to rename it or confirm deletion, choosing whether to transfer or delete its cards. At least one column always remains. Committed changes save automatically to IndexedDB. Backups and the remaining v1 features are separate slices.
 
 ## Development
 
