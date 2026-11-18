@@ -241,6 +241,10 @@ test("the board follows system theme and a keyboard toggle overrides it", async 
   );
   await page.keyboard.press("Tab");
   await expect(
+    page.getByRole("button", { name: "Backups", exact: true })
+  ).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(
     page.getByRole("button", { name: "Toggle theme" })
   ).toBeFocused();
   await page.keyboard.press("Enter");

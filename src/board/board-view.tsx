@@ -15,6 +15,7 @@ import { ColumnDeletion } from "./column-deletion";
 import { placeCard, placeColumn } from "./movement";
 import { Confirmation } from "./confirmation";
 import { useBoardDrag } from "./use-board-drag";
+import { Backups } from "./backups";
 
 function CardContent({ card }: { card: Card }) {
   return (
@@ -42,6 +43,7 @@ export default function BoardView() {
   const [columnEditor, setColumnEditor] = useState<{ column?: Column }>();
   const [deletingColumn, setDeletingColumn] = useState<Column>();
   const [saving, setSaving] = useState(false);
+  const [backupsOpen, setBackupsOpen] = useState(false);
   const [dragDeletion, setDragDeletion] = useState<{
     card: Card;
     columnId: string;
@@ -52,6 +54,7 @@ export default function BoardView() {
       !!editor ||
       !!columnEditor ||
       !!deletingColumn ||
+      backupsOpen ||
       !!dragDeletion,
     (item, drop) => {
       if (!board || saving || failure) return;
@@ -190,27 +193,42 @@ export default function BoardView() {
           </svg>
           Doneward<span className="brand-dot">.</span>
         </h1>
-        <button
-          type="button"
-          tabIndex={0}
-          className="theme-toggle"
-          aria-label="Toggle theme"
-          onClick={(event) => {
-            const app = event.currentTarget.closest("main")!;
-            setTheme(
-              getComputedStyle(app).colorScheme === "dark" ? "light" : "dark"
-            );
-          }}
-        >
-          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
-            <path
-              d="M20 14a8 8 0 0 1-10-10 8 8 0 1 0 10 10Z"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            />
-          </svg>
-        </button>
+        <div className="header-actions">
+          <button
+            type="button"
+            className="backup-toggle"
+            tabIndex={0}
+            id="board-backups"
+            disabled={!board || saving || !!failure}
+            onClick={(event) => {
+              event.currentTarget.focus();
+              setBackupsOpen(true);
+            }}
+          >
+            Backups
+          </button>
+          <button
+            type="button"
+            tabIndex={0}
+            className="theme-toggle"
+            aria-label="Toggle theme"
+            onClick={(event) => {
+              const app = event.currentTarget.closest("main")!;
+              setTheme(
+                getComputedStyle(app).colorScheme === "dark" ? "light" : "dark"
+              );
+            }}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
+              <path
+                d="M20 14a8 8 0 0 1-10-10 8 8 0 1 0 10 10Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+            </svg>
+          </button>
+        </div>
       </header>
       {failure ? (
         <p role="alert">{failure}</p>
@@ -555,6 +573,16 @@ export default function BoardView() {
           <p className="save-status" role="status">
             {saving ? "Saving…" : "Saved on this device"}
           </p>
+          {backupsOpen && (
+            <Backups
+              board={board}
+              onClose={() => setBackupsOpen(false)}
+              onReplace={(next) => {
+                setBackupsOpen(false);
+                void commit(next, { fallback: "board-backups" });
+              }}
+            />
+          )}
           {editor && (
             <CardEditor
               columns={board.columns}

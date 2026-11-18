@@ -3,7 +3,7 @@ export type Column = { id: string; name: string; cards: Card[] };
 export type Board = { version: 1; columns: Column[] };
 export class BoardSaveError extends Error {}
 
-function isBoard(value: unknown): value is Board {
+export function isBoard(value: unknown): value is Board {
   if (
     typeof value !== "object" ||
     value === null ||
