@@ -42,4 +42,8 @@ Use **Backups** in the header to download a complete version 1 JSON backup or im
 
 The browser owns the board; no server database or account is used. IndexedDB database `doneward` (version 1), store `boards`, key `current` contains `{ version: 1, columns: [{ id, name, cards: [{ id, title, description? }] }]`. Array order is board order. Column IDs are unique and each card ID occurs exactly once across the board. Empty saved boards retain at least one column.
 
-Only an absent key triggers starter-board creation. Invalid or unreadable saved data displays an error without replacement; writes count as saved only after the transaction commits. Full recovery controls, multi-tab editing ownership, and offline application caching belong to later tickets. Clearing browser site data can remove the board.
+Only an absent key triggers starter-board creation. Invalid or unreadable saved data displays an error without replacement; writes count as saved only after the transaction commits. Full recovery controls and offline application caching belong to later tickets. Clearing browser site data can remove the board.
+
+## Multiple tabs
+
+An exclusive Web Lock allows one tab to edit per browser profile and origin. Other tabs display live, read-only saved boards with disabled mutation controls; themes and backup export remain available. BroadcastChannel announces successful saves, never unsaved drafts or failed writes. Closing or leaving the editor automatically hands editing access to a waiting tab, which reloads the latest saved board before enabling changes. Browsers must support Web Locks and BroadcastChannel; unsupported browsers show an explanation rather than risk concurrent writes. This does not coordinate other browsers or devices. Close older application tabs when upgrading from a version without editing coordination.

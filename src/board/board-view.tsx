@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  type Board,
-  type Card,
-  type Column,
-  BoardSaveError,
-  loadBoard,
-  saveBoard,
-} from "./storage";
+import { type Board, type Card, type Column } from "./storage";
+import { useBoardSession } from "./use-board-session";
 import { CardEditor } from "./card-editor";
 import { ColumnEditor } from "./column-editor";
 import { ColumnDeletion } from "./column-deletion";
@@ -36,8 +30,8 @@ function CardContent({ card }: { card: Card }) {
 }
 
 export default function BoardView() {
-  const [board, setBoard] = useState<Board>();
-  const [failure, setFailure] = useState<string>();
+  const { board, setBoard, failure, setFailure, editing, save } =
+    useBoardSession();
   const [theme, setTheme] = useState<"light" | "dark">();
   const [editor, setEditor] = useState<{ columnId: string; card?: Card }>();
   const [columnEditor, setColumnEditor] = useState<{ column?: Column }>();
@@ -49,7 +43,8 @@ export default function BoardView() {
     columnId: string;
   }>();
   const { drag, ...dragHandlers } = useBoardDrag(
-    saving ||
+    !editing ||
+      saving ||
       !!failure ||
       !!editor ||
       !!columnEditor ||
@@ -57,7 +52,7 @@ export default function BoardView() {
       backupsOpen ||
       !!dragDeletion,
     (item, drop) => {
-      if (!board || saving || failure) return;
+      if (!editing || !board || saving || failure) return;
       if (item.kind === "card") {
         const source = board.columns.find((column) =>
           column.cards.some((card) => card.id === item.id)
@@ -101,6 +96,18 @@ export default function BoardView() {
     fallback: string;
   } | null>(null);
   useEffect(() => {
+    // A back/forward-cache restoration must not revive drafts from an old lease.
+    function closeDrafts() {
+      setEditor(undefined);
+      setColumnEditor(undefined);
+      setDeletingColumn(undefined);
+      setDragDeletion(undefined);
+      setBackupsOpen(false);
+    }
+    window.addEventListener("pagehide", closeDrafts);
+    return () => window.removeEventListener("pagehide", closeDrafts);
+  }, []);
+  useEffect(() => {
     function closeOutsideMenus(event: PointerEvent) {
       if (!(event.target instanceof Node)) return;
       for (const menu of document.querySelectorAll<HTMLDetailsElement>(
@@ -127,6 +134,7 @@ export default function BoardView() {
     next: Board,
     focus?: { primary?: string; fallback: string }
   ) {
+    if (!editing || saving || failure) return;
     if (focus) pendingFocus.current = focus;
     else if (editor)
       pendingFocus.current = {
@@ -139,7 +147,7 @@ export default function BoardView() {
     setDeletingColumn(undefined);
     setSaving(true);
     try {
-      await saveBoard(next);
+      await save(next);
     } catch {
       setFailure(
         "Your changes could not be saved. Please check browser storage and reload."
@@ -148,26 +156,6 @@ export default function BoardView() {
       setSaving(false);
     }
   }
-
-  useEffect(() => {
-    let active = true;
-    loadBoard().then(
-      (saved) => {
-        if (active) setBoard(saved);
-      },
-      (error: unknown) => {
-        if (active)
-          setFailure(
-            error instanceof BoardSaveError
-              ? "The starter board could not be saved. Please check browser storage and reload."
-              : "Your saved board could not be opened. Existing data has not been replaced."
-          );
-      }
-    );
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const draggedCard =
     drag?.kind === "card"
@@ -236,6 +224,12 @@ export default function BoardView() {
         <p role="status">Opening your board…</p>
       ) : (
         <>
+          {!editing && (
+            <p className="ownership-status" role="note">
+              Read-only: another tab has editing access. This tab will take over
+              automatically when it closes or leaves.
+            </p>
+          )}
           <div
             className="board"
             {...dragHandlers}
@@ -273,7 +267,7 @@ export default function BoardView() {
                   <button
                     className="drag-handle column-drag-handle"
                     data-drag-kind="column"
-                    disabled={saving}
+                    disabled={!editing || saving}
                     aria-label={`Drag column ${column.name}`}
                     title="Drag column; or use Column actions to reorder"
                     onClick={() => {
@@ -294,7 +288,7 @@ export default function BoardView() {
                   </span>
                   <button
                     id={`add-${column.id}`}
-                    disabled={saving}
+                    disabled={!editing || saving}
                     className="add-card-icon"
                     aria-label="Add card"
                     onClick={(event) => {
@@ -319,7 +313,7 @@ export default function BoardView() {
                     >
                       <button
                         tabIndex={0}
-                        disabled={saving}
+                        disabled={!editing || saving}
                         onClick={(event) => {
                           event.currentTarget.closest("details")!.open = false;
                           document
@@ -346,7 +340,9 @@ export default function BoardView() {
                       </button>
                       <button
                         tabIndex={0}
-                        disabled={saving || board.columns.length === 1}
+                        disabled={
+                          !editing || saving || board.columns.length === 1
+                        }
                         onClick={(event) => {
                           event.currentTarget.closest("details")!.open = false;
                           document
@@ -380,6 +376,7 @@ export default function BoardView() {
                         <button
                           key={offset}
                           disabled={
+                            !editing ||
                             saving ||
                             columnIndex + offset < 0 ||
                             columnIndex + offset >= board.columns.length
@@ -441,7 +438,7 @@ export default function BoardView() {
                   >
                     <button
                       id={`card-${card.id}`}
-                      disabled={saving}
+                      disabled={!editing || saving}
                       className="card-open"
                       aria-label={`Edit ${card.title}`}
                       onClick={(event) => {
@@ -453,7 +450,7 @@ export default function BoardView() {
                   </article>
                 ))}
                 <button
-                  disabled={saving}
+                  disabled={!editing || saving}
                   className="add-card"
                   aria-label="Add a card"
                   onClick={(event) => {
@@ -469,7 +466,7 @@ export default function BoardView() {
               id="board-add-column"
               className="add-column"
               aria-label="Add column"
-              disabled={saving}
+              disabled={!editing || saving}
               onClick={(event) => {
                 event.currentTarget.focus();
                 setColumnEditor({});
@@ -571,11 +568,16 @@ export default function BoardView() {
             </Confirmation>
           )}
           <p className="save-status" role="status">
-            {saving ? "Saving…" : "Saved on this device"}
+            {!editing
+              ? "Read-only · Saved on this device"
+              : saving
+                ? "Saving…"
+                : "Saved on this device"}
           </p>
           {backupsOpen && (
             <Backups
               board={board}
+              readOnly={!editing}
               onClose={() => setBackupsOpen(false)}
               onReplace={(next) => {
                 setBackupsOpen(false);

@@ -76,7 +76,7 @@ export async function saveBoard(board: Board): Promise<void> {
   }
 }
 
-export async function loadBoard(): Promise<Board> {
+export async function loadBoard(initialize = true): Promise<Board | undefined> {
   const database = await openDatabase();
   let saved: { exists: boolean; value: unknown };
   try {
@@ -96,6 +96,7 @@ export async function loadBoard(): Promise<Board> {
     if (!isBoard(saved.value)) throw new Error("Invalid saved board");
     return saved.value;
   }
+  if (!initialize) return undefined;
   const board: Board = {
     version: 1,
     columns: [
