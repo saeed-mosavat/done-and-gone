@@ -366,16 +366,26 @@ button:disabled {
   position: fixed;
   z-index: 30;
   pointer-events: none;
-  transform: translate(-50%, calc(-100% - 16px)) rotate(-2deg);
-  width: min(260px, 70vw);
-  padding: 20px;
   border: 1px solid var(--accent);
-  border-radius: 10px;
   background: var(--surface);
   color: var(--text);
   box-shadow: 0 12px 30px #10182744;
   overflow-wrap: anywhere;
   font-size: 13px;
+}
+.drag-preview:not(.card) {
+  transform: translate(-50%, calc(-100% - 16px)) rotate(-2deg);
+  width: min(260px, 70vw);
+  padding: 20px;
+  border-radius: 10px;
+}
+.card.drag-preview {
+  margin: 0;
+}
+.card.drag-preview[data-over-delete] {
+  border-color: #b42336;
+  outline: 3px solid #b42336;
+  outline-offset: 2px;
 }
 .delete-drop-zone {
   position: fixed;

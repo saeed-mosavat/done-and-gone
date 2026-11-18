@@ -104,6 +104,70 @@ async function startDrag(page: Page, locator: Locator) {
   );
 }
 
+test("delete hover follows the visible pointer at the edge of the zone", async ({
+  page,
+}) => {
+  await seedBoard(page, sample);
+  await startDrag(
+    page,
+    page.getByRole("button", { name: "Edit Second", exact: true })
+  );
+  const zone = page.getByRole("region", {
+    name: "Delete drop zone",
+    exact: true,
+  });
+  const box = (await zone.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y - 4);
+  await expect(zone).toHaveText("Drop here to delete");
+  await page.mouse.move(box.x + box.width / 2, box.y + 4);
+  await expect(zone).toHaveText("Release to delete");
+  await page.mouse.up();
+  await expect(
+    page.getByRole("dialog", { name: "Delete card?", exact: true })
+  ).toBeVisible();
+});
+
+for (const width of [1440, 390]) {
+  test(`dragging keeps the card's size, content, and grabbed point under the pointer at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 960 });
+    await seedBoard(page, sample);
+    const card = page.getByRole("article").first();
+    const original = (await card.boundingBox())!;
+    const originalText = await card.textContent();
+    const grab = { x: 35, y: 45 };
+    await page.mouse.move(original.x + grab.x, original.y + grab.y);
+    await page.mouse.down();
+    await page.mouse.move(original.x + grab.x + 12, original.y + grab.y + 12);
+    const preview = page.locator(".drag-preview");
+    await expect(preview).toBeVisible();
+    const moved = (await preview.boundingBox())!;
+    expect(moved.x).toBeCloseTo(original.x + 12, 0);
+    expect(moved.y).toBeCloseTo(original.y + 12, 0);
+    expect(moved.width).toBeCloseTo(original.width, 0);
+    expect(moved.height).toBeCloseTo(original.height, 0);
+    expect(await preview.textContent()).toBe(originalText);
+    const zone = page.getByRole("region", {
+      name: "Delete drop zone",
+      exact: true,
+    });
+    const target = (await zone.boundingBox())!;
+    // Enter near the top of the target: no extra downward travel should be needed.
+    const pointer = { x: target.x + target.width / 2, y: target.y + 4 };
+    await page.mouse.move(pointer.x, pointer.y, { steps: 8 });
+    await expect(zone).toHaveText("Release to delete");
+    const overTarget = (await preview.boundingBox())!;
+    // Browser input dispatch can round subpixel client coordinates.
+    expect(Math.abs(pointer.x - overTarget.x - grab.x)).toBeLessThan(1);
+    expect(Math.abs(pointer.y - overTarget.y - grab.y)).toBeLessThan(1);
+    await page.mouse.up();
+    await expect(
+      page.getByRole("dialog", { name: "Delete card?", exact: true })
+    ).toBeVisible();
+  });
+}
+
 test("dragging to delete confirms the title, cancelling preserves order, and confirming persists", async ({
   page,
 }) => {

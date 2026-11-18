@@ -8,7 +8,15 @@ import {
 type Item = { kind: "card" | "column"; id: string; title: string };
 type Drop =
   { kind: "delete" } | { kind: "place"; columnId: string; beforeId?: string };
-type Drag = Item & { x: number; y: number; drop?: Drop };
+type Drag = Item & {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  grabX: number;
+  grabY: number;
+  drop?: Drop;
+};
 
 // Pointer gestures do not mutate the board until a valid release. Touch uses
 // handles only, leaving the rest of the board available for native scrolling.
@@ -54,6 +62,13 @@ export function useBoardDrag(
     const board = event.currentTarget;
     const pointerId = event.pointerId;
     const origin = { x: event.clientX, y: event.clientY };
+    const rect = element.getBoundingClientRect();
+    const geometry = {
+      width: rect.width,
+      height: rect.height,
+      grabX: origin.x - rect.left,
+      grabY: origin.y - rect.top,
+    };
     let x = origin.x;
     let y = origin.y;
     let active = false;
@@ -97,7 +112,7 @@ export function useBoardDrag(
           }
         }
       }
-      setDrag({ ...item, x, y, drop });
+      setDrag({ ...item, ...geometry, x, y, drop });
     }
     function tick() {
       if (active) {

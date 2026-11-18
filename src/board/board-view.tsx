@@ -16,6 +16,24 @@ import { placeCard, placeColumn } from "./movement";
 import { Confirmation } from "./confirmation";
 import { useBoardDrag } from "./use-board-drag";
 
+function CardContent({ card }: { card: Card }) {
+  return (
+    <>
+      <h3 dir="auto">{card.title}</h3>
+      {card.description && (
+        <div>
+          {card.description.split("\n").map((paragraph, index, all) => (
+            <p key={index} dir="auto" className="whitespace-pre-wrap">
+              {paragraph}
+              {index < all.length - 1 ? "\n" : ""}
+            </p>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function BoardView() {
   const [board, setBoard] = useState<Board>();
   const [failure, setFailure] = useState<string>();
@@ -147,6 +165,13 @@ export default function BoardView() {
       active = false;
     };
   }, []);
+
+  const draggedCard =
+    drag?.kind === "card"
+      ? board?.columns
+          .flatMap((column) => column.cards)
+          .find((card) => card.id === drag.id)
+      : undefined;
 
   return (
     <main className="app" data-theme={theme}>
@@ -419,23 +444,7 @@ export default function BoardView() {
                     >
                       <span aria-hidden="true">⠿</span>
                     </button>
-                    <h3 dir="auto">{card.title}</h3>
-                    {card.description && (
-                      <div>
-                        {card.description
-                          .split("\n")
-                          .map((paragraph, index, all) => (
-                            <p
-                              key={index}
-                              dir="auto"
-                              className="whitespace-pre-wrap"
-                            >
-                              {paragraph}
-                              {index < all.length - 1 ? "\n" : ""}
-                            </p>
-                          ))}
-                      </div>
-                    )}
+                    <CardContent card={card} />
                   </article>
                 ))}
                 <button
@@ -503,11 +512,28 @@ export default function BoardView() {
                 </div>
               )}
               <div
-                className="drag-preview"
+                className={draggedCard ? "card drag-preview" : "drag-preview"}
+                data-over-delete={drag.drop?.kind === "delete" || undefined}
                 aria-hidden="true"
-                style={{ left: drag.x, top: drag.y }}
+                style={
+                  draggedCard
+                    ? {
+                        left: drag.x - drag.grabX,
+                        top: drag.y - drag.grabY,
+                        width: drag.width,
+                        height: drag.height,
+                      }
+                    : { left: drag.x, top: drag.y }
+                }
               >
-                <bdi dir="auto">{drag.title}</bdi>
+                {draggedCard ? (
+                  <>
+                    <span className="drag-handle card-drag-handle">⠿</span>
+                    <CardContent card={draggedCard} />
+                  </>
+                ) : (
+                  <bdi dir="auto">{drag.title}</bdi>
+                )}
               </div>
             </>
           )}
