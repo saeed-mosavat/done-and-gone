@@ -52,10 +52,12 @@ function downloadBackup(board: Board) {
 
 export function Backups({
   board,
+  readOnly = false,
   onClose,
   onReplace,
 }: {
   board: Board;
+  readOnly?: boolean;
   onClose: () => void;
   onReplace: (board: Board) => void;
 }) {
@@ -107,6 +109,7 @@ export function Backups({
         tabIndex={0}
         id="backup-file"
         type="file"
+        disabled={readOnly}
         accept=".json,application/json"
         onChange={async (event) => {
           const file = event.currentTarget.files?.[0];
