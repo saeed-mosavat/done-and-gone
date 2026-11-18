@@ -104,6 +104,78 @@ async function startDrag(page: Page, locator: Locator) {
   );
 }
 
+test("cards drag translucently without handles while columns retain their handles", async ({
+  page,
+}) => {
+  await seedBoard(page, sample);
+  await expect(page.getByRole("button", { name: /^Drag card / })).toHaveCount(
+    0
+  );
+  await expect(page.getByRole("button", { name: /^Drag column / })).toHaveCount(
+    3
+  );
+  await startDrag(
+    page,
+    page.getByRole("button", { name: "Edit Second", exact: true })
+  );
+  const opacity = Number(
+    await page
+      .locator(".drag-preview")
+      .evaluate((element) => getComputedStyle(element).opacity)
+  );
+  expect(opacity).toBeGreaterThanOrEqual(0.75);
+  expect(opacity).toBeLessThan(1);
+  await page.keyboard.press("Escape");
+  await page.mouse.up();
+  await expect(page.locator(".drag-preview")).toHaveCount(0);
+  await expect(page.getByRole("article").nth(1)).toHaveCSS("opacity", "1");
+});
+
+test("ordinary card right-clicks retain native context-menu behavior", async ({
+  page,
+}) => {
+  await seedBoard(page, sample);
+  const [prevented] = await Promise.all([
+    page.evaluate(
+      () =>
+        new Promise<boolean>((resolve) =>
+          document.addEventListener(
+            "contextmenu",
+            (event) => resolve(event.defaultPrevented),
+            { once: true }
+          )
+        )
+    ),
+    page
+      .getByRole("button", { name: "Edit Second", exact: true })
+      .click({ button: "right" }),
+  ]);
+  expect(prevented).toBe(false);
+  await page.keyboard.press("Escape");
+});
+
+test("columns also use a translucent drag preview while keeping the handle", async ({
+  page,
+}) => {
+  await seedBoard(page, sample);
+  await startDrag(
+    page,
+    page.getByRole("button", { name: `Drag column ${sourceName}`, exact: true })
+  );
+  const preview = page.locator(".drag-preview");
+  await expect(preview).toBeVisible();
+  const opacity = Number(
+    await preview.evaluate((element) => getComputedStyle(element).opacity)
+  );
+  expect(opacity).toBeGreaterThanOrEqual(0.75);
+  expect(opacity).toBeLessThan(1);
+  await page.keyboard.press("Escape");
+  await page.mouse.up();
+  await expect(page.getByRole("button", { name: /^Drag column / })).toHaveCount(
+    3
+  );
+});
+
 test("delete hover follows the visible pointer at the edge of the zone", async ({
   page,
 }) => {
@@ -464,7 +536,7 @@ test.describe("touch movement", () => {
       "Second",
     ]);
   });
-  test("native touch handles reorder cards and columns and edge-scroll into empty destinations", async ({
+  test("native touch holds reorder cards, column handles reorder columns, and edge scrolling reaches empty destinations", async ({
     page,
     context,
     browserName,
@@ -490,6 +562,8 @@ test.describe("touch movement", () => {
         type: "touchStart",
         touchPoints: [{ x, y }],
       });
+      await expect(page.locator(".drag-preview")).toHaveCount(0);
+      await expect(page.locator(".drag-preview")).toBeVisible();
       await move(x, y + 10);
     }
     async function end() {
@@ -500,9 +574,7 @@ test.describe("touch movement", () => {
       await expect(page.getByRole("status")).toHaveText("Saved on this device");
     }
     const source = page.getByRole("region", { name: sourceName, exact: true });
-    await start(
-      page.getByRole("button", { name: "Drag card Second", exact: true })
-    );
+    await start(page.getByRole("button", { name: "Edit Second", exact: true }));
     const first = (await source.getByRole("article").first().boundingBox())!;
     await move(100, first.y + 2);
     await end();
@@ -511,16 +583,15 @@ test.describe("touch movement", () => {
       "نسخه https://example.com (42)",
       "Third",
     ]);
-    await start(
-      page.getByRole("button", { name: "Drag card Second", exact: true })
-    );
+    await start(page.getByRole("button", { name: "Edit Second", exact: true }));
     await move(365, 400);
     const empty = page.getByRole("region", { name: "Empty", exact: true });
     await expect
       .poll(async () => (await empty.boundingBox())!.x)
       .toBeLessThan(250);
     let box = (await empty.boundingBox())!;
-    await move(Math.max(40, box.x + 25), 400);
+    // Leave the edge-scroll strip before releasing in the destination.
+    await move(Math.min(330, Math.max(100, box.x + box.width / 2)), 400);
     await end();
     await expect(empty.getByRole("heading", { level: 3 })).toHaveText([
       "Second",
@@ -549,7 +620,57 @@ test.describe("touch movement", () => {
     ]);
     await expect(page.getByRole("article")).toHaveCount(4);
   });
-  test("native touch scrolling remains available and handles drag into the delete zone", async ({
+  test("native touch column-handle swipes scroll without starting a delayed drag", async ({
+    page,
+    context,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "Native swipe injection uses Chromium's public input protocol; touch menus run in every engine."
+    );
+    await seedBoard(page, sample);
+    const handle = page.getByRole("button", {
+      name: `Drag column ${sourceName}`,
+      exact: true,
+    });
+    const box = (await handle.boundingBox())!;
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    const input = await context.newCDPSession(page);
+    await input.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x, y }],
+    });
+    for (const distance of [30, 60, 90, 120]) {
+      await input.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{ x: x - distance, y }],
+      });
+    }
+    await input.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [],
+    });
+    await page.waitForTimeout(400);
+    await expect(page.locator(".drag-preview")).toHaveCount(0);
+    await expect
+      .poll(
+        async () =>
+          (await page
+            .getByRole("region", { name: sourceName, exact: true })
+            .boundingBox())!.x
+      )
+      .toBeLessThan(0);
+    await page.reload();
+    await expect(page.getByRole("heading", { level: 2 })).toHaveText([
+      sourceName,
+      "Queue صف 3",
+      "Empty",
+    ]);
+  });
+
+  test("native touch swipes still scroll while holding a card starts delete dragging", async ({
     page,
     context,
     browserName,
@@ -560,6 +681,11 @@ test.describe("touch movement", () => {
     );
     await seedBoard(page, sample);
     const input = await context.newCDPSession(page);
+    await page.getByRole("button", { name: "Edit Second", exact: true }).tap();
+    await page.getByRole("button", { name: "Cancel", exact: true }).tap();
+    // Exercise expiry of a cancelled hold timer, not just immediate state.
+    await page.waitForTimeout(400);
+    await expect(page.locator(".drag-preview")).toHaveCount(0);
     await input.send("Input.dispatchTouchEvent", {
       type: "touchStart",
       touchPoints: [{ x: 260, y: 390 }],
@@ -574,6 +700,7 @@ test.describe("touch movement", () => {
       type: "touchEnd",
       touchPoints: [],
     });
+    await page.waitForTimeout(400);
     await expect(
       page.getByRole("region", { name: "Delete drop zone", exact: true })
     ).toHaveCount(0);
@@ -586,10 +713,10 @@ test.describe("touch movement", () => {
       )
       .toBeLessThan(0);
     await page
-      .getByRole("button", { name: "Drag card Second", exact: true })
+      .getByRole("button", { name: "Edit Second", exact: true })
       .scrollIntoViewIfNeeded();
     const handle = (await page
-      .getByRole("button", { name: "Drag card Second", exact: true })
+      .getByRole("button", { name: "Edit Second", exact: true })
       .boundingBox())!;
     await input.send("Input.dispatchTouchEvent", {
       type: "touchStart",
@@ -597,6 +724,9 @@ test.describe("touch movement", () => {
         { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 },
       ],
     });
+    await expect(
+      page.getByRole("region", { name: "Delete drop zone", exact: true })
+    ).toBeVisible();
     await input.send("Input.dispatchTouchEvent", {
       type: "touchMove",
       touchPoints: [

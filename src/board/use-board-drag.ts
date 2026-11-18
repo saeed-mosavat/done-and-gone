@@ -18,8 +18,8 @@ type Drag = Item & {
   drop?: Drop;
 };
 
-// Pointer gestures do not mutate the board until a valid release. Touch uses
-// handles only, leaving the rest of the board available for native scrolling.
+// Pointer gestures do not mutate the board until a valid release. A touch hold
+// starts dragging; movement before the hold preserves native scrolling.
 export function useBoardDrag(
   disabled: boolean,
   onDrop: (item: Item, drop: Drop) => void
@@ -37,11 +37,7 @@ export function useBoardDrag(
     const target = event.target as HTMLElement;
     const handle = target.closest<HTMLElement>("[data-drag-kind]");
     const card = target.closest<HTMLElement>("[data-card-id]");
-    if (
-      !handle &&
-      (event.pointerType !== "mouse" || !target.closest(".card-open"))
-    )
-      return;
+    if (!handle && !target.closest(".card-open")) return;
     const element =
       handle?.dataset.dragKind === "column"
         ? handle.closest<HTMLElement>("[data-column-id]")
@@ -74,6 +70,8 @@ export function useBoardDrag(
     let active = false;
     let drop: Drop | undefined;
     let frame = 0;
+    let holdTimer: ReturnType<typeof setTimeout> | undefined;
+    const holdToDrag = event.pointerType === "touch";
 
     function update() {
       const hit = document.elementFromPoint(x, y);
@@ -127,15 +125,29 @@ export function useBoardDrag(
       }
       frame = requestAnimationFrame(tick);
     }
+    function begin() {
+      active = true;
+      suppressClick.current = true;
+      board.setPointerCapture(pointerId);
+      document.getSelection()?.removeAllRanges();
+      update();
+    }
+    function preventTouchScroll(event: TouchEvent) {
+      if (active) event.preventDefault();
+    }
+    function preventTouchContextMenu(event: MouseEvent) {
+      if (active) event.preventDefault();
+    }
     function move(event: PointerEvent) {
       if (event.pointerId !== pointerId) return;
       x = event.clientX;
       y = event.clientY;
       if (!active && Math.hypot(x - origin.x, y - origin.y) >= 6) {
-        active = true;
-        suppressClick.current = true;
-        board.setPointerCapture(pointerId);
-        document.getSelection()?.removeAllRanges();
+        if (holdToDrag) {
+          stop();
+          return;
+        }
+        begin();
       }
       if (active) {
         event.preventDefault();
@@ -143,7 +155,10 @@ export function useBoardDrag(
       }
     }
     function stop() {
+      clearTimeout(holdTimer);
       cancelAnimationFrame(frame);
+      board.removeEventListener("contextmenu", preventTouchContextMenu);
+      window.removeEventListener("touchmove", preventTouchScroll);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", cancel);
@@ -173,10 +188,17 @@ export function useBoardDrag(
     cleanup.current();
     cleanup.current = stop;
     window.addEventListener("pointermove", move, { passive: false });
+    window.addEventListener("touchmove", preventTouchScroll, {
+      passive: false,
+    });
     window.addEventListener("pointerup", up);
     window.addEventListener("pointercancel", cancel);
     window.addEventListener("keydown", key);
     window.addEventListener("blur", cancel);
+    if (holdToDrag) {
+      board.addEventListener("contextmenu", preventTouchContextMenu);
+      holdTimer = setTimeout(begin, 350);
+    }
     frame = requestAnimationFrame(tick);
   }
   return {

@@ -431,19 +431,6 @@ export default function BoardView() {
                         setEditor({ columnId: column.id, card });
                       }}
                     />
-                    <button
-                      className="drag-handle card-drag-handle"
-                      data-drag-kind="card"
-                      disabled={saving}
-                      aria-label={`Drag card ${card.title}`}
-                      title="Drag card; or open the editor to move"
-                      onClick={(event) => {
-                        event.currentTarget.focus();
-                        setEditor({ columnId: column.id, card });
-                      }}
-                    >
-                      <span aria-hidden="true">⠿</span>
-                    </button>
                     <CardContent card={card} />
                   </article>
                 ))}
@@ -528,7 +515,6 @@ export default function BoardView() {
               >
                 {draggedCard ? (
                   <>
-                    <span className="drag-handle card-drag-handle">⠿</span>
                     <CardContent card={draggedCard} />
                   </>
                 ) : (
