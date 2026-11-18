@@ -323,3 +323,48 @@ test("backup controls, validation, confirmation, and imported mixed text support
     }
   }
 });
+
+test.describe("touch backups", () => {
+  test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
+
+  test("touch opens backups, exports before replacement, cancels safely, and confirms an import", async ({
+    page,
+  }) => {
+    await seedBoard(page, original);
+    await page.getByRole("button", { name: "Backups", exact: true }).tap();
+    const replacement = {
+      version: 1,
+      columns: [{ id: "empty", name: "صف Queue 42", cards: [] }],
+    };
+    // File selection is supplied at the browser's upload boundary.
+    await upload(page, replacement);
+    const confirmation = page.getByRole("dialog", {
+      name: "Replace board?",
+      exact: true,
+    });
+    const downloaded = page.waitForEvent("download");
+    await confirmation
+      .getByRole("button", { name: "Export backup", exact: true })
+      .tap();
+    const file = await downloaded;
+    expect(JSON.parse(await readFile((await file.path())!, "utf8"))).toEqual(
+      original
+    );
+    await confirmation
+      .getByRole("button", { name: "Cancel", exact: true })
+      .tap();
+    await page.getByRole("button", { name: "Close backups" }).tap();
+    await expect(page.getByRole("article")).toHaveCount(2);
+    await page.getByRole("button", { name: "Backups", exact: true }).tap();
+    await upload(page, replacement);
+    await confirmation
+      .getByRole("button", { name: "Replace board", exact: true })
+      .tap();
+    await expect(page.getByRole("status")).toHaveText("Saved on this device");
+    await page.reload();
+    await expect(page.getByRole("heading", { level: 2 })).toHaveText([
+      "صف Queue 42",
+    ]);
+    await expect(page.getByRole("article")).toHaveCount(0);
+  });
+});
