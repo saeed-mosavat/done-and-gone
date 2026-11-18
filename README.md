@@ -1,6 +1,6 @@
 # Doneward
 
-A local-first personal task board. Open a single board on this device, add cards within each column, and open any card to edit, move, reorder, or delete it. Card drafts require explicit Save; dismissing changed drafts asks before discarding. Drag cards directly to move or reorder them, use column handles to reorder columns, or use the card editor and column menus without dragging. Dragging a card to the red delete zone asks for confirmation; cancellation preserves its original position. On touch screens, hold a card or a column handle to start dragging; ordinary swipes still scroll the board. Add columns on the right; use each column's contextual actions to rename it or confirm deletion, choosing whether to transfer or delete its cards. At least one column always remains. Committed changes save automatically to IndexedDB. Backups and the remaining v1 features are separate slices.
+A local-first personal task board. Open a single board on this device, add cards within each column, and open any card to edit, move, reorder, or delete it. Card drafts require explicit Save; dismissing changed drafts asks before discarding. Drag cards directly to move or reorder them, use column handles to reorder columns, or use the card editor and column menus without dragging. Dragging a card to the red delete zone asks for confirmation; cancellation preserves its original position. On touch screens, hold a card or a column handle to start dragging; ordinary swipes still scroll the board. Add columns on the right; use each column's contextual actions to rename it or confirm deletion, choosing whether to transfer or delete its cards. At least one column always remains. Committed changes save automatically to IndexedDB. Export complete backups or replace the board by importing a validated backup through the header's Backups control.
 
 ## Development
 
@@ -38,6 +38,8 @@ Visual baselines under `tests/*-snapshots/` cover the board, card/column dialogs
 
 ## Local storage
 
+Use **Backups** in the header to download a complete version 1 JSON backup or import one. Import validates the entire file before offering replacement, never merges boards, and lets you export the current board before confirming. Names and titles are trimmed; description whitespace and line breaks are preserved. Keep backups outside the browser: clearing site data can remove the board.
+
 The browser owns the board; no server database or account is used. IndexedDB database `doneward` (version 1), store `boards`, key `current` contains `{ version: 1, columns: [{ id, name, cards: [{ id, title, description? }] }]`. Array order is board order. Column IDs are unique and each card ID occurs exactly once across the board. Empty saved boards retain at least one column.
 
-Only an absent key triggers starter-board creation. Invalid or unreadable saved data displays an error without replacement; writes count as saved only after the transaction commits. Full recovery controls, backup export/import, multi-tab editing ownership, and offline application caching belong to later tickets. Clearing browser site data can remove the board.
+Only an absent key triggers starter-board creation. Invalid or unreadable saved data displays an error without replacement; writes count as saved only after the transaction commits. Full recovery controls, multi-tab editing ownership, and offline application caching belong to later tickets. Clearing browser site data can remove the board.
