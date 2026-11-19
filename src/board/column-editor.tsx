@@ -5,10 +5,12 @@ export function ColumnEditor({
   initialName = "",
   onClose,
   onSave,
+  update,
 }: {
   initialName?: string;
   onClose: () => void;
   onSave: (name: string) => void;
+  update?: React.ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [name, setName] = useState(initialName);
@@ -34,6 +36,7 @@ export function ColumnEditor({
         onClose();
       }}
     >
+      {update}
       <form
         onSubmit={(event) => {
           event.preventDefault();
