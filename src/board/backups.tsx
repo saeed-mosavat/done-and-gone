@@ -44,7 +44,7 @@ function downloadBackup(board: Board) {
   );
   const link = document.createElement("a");
   link.href = url;
-  link.download = "doneward-backup.json";
+  link.download = "done-and-gone-backup.json";
   link.click();
   // Allow the browser to start consuming the download before releasing it.
   setTimeout(() => URL.revokeObjectURL(url), 1000);

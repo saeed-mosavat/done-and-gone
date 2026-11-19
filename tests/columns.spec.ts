@@ -723,7 +723,9 @@ test("even an empty column requires confirmation and cancellation leaves the boa
     "Todo",
     "Done",
   ]);
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
 });
 
 for (const action of ["New column", "Rename column"]) {
@@ -789,14 +791,18 @@ test("contextual renaming preserves cards and accepts duplicate column names", a
     "Doing",
     "Done",
   ]);
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
   await page.reload();
   await expect(page.getByRole("heading", { level: 2 })).toHaveText([
     "Done",
     "Doing",
     "Done",
   ]);
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
 });
 
 // Behavioral and visual coverage follows docs/design/board.md.

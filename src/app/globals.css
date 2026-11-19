@@ -12,6 +12,8 @@
   --muted: #526884;
   --border: #dce5f1;
   --accent: #3973d6;
+  --brand-light-display: block;
+  --brand-dark-display: none;
   color-scheme: light;
   background: var(--page);
   color: var(--text);
@@ -27,6 +29,8 @@
     --muted: #a3b5d0;
     --border: #2a3b56;
     --accent: #88b4ff;
+    --brand-light-display: none;
+    --brand-dark-display: block;
     color-scheme: dark;
   }
 }
@@ -38,6 +42,8 @@
   --muted: #a3b5d0;
   --border: #2a3b56;
   --accent: #88b4ff;
+  --brand-light-display: none;
+  --brand-dark-display: block;
   color-scheme: dark;
 }
 button {
@@ -213,18 +219,18 @@ button:focus-visible {
   border-bottom: 1px solid var(--border);
 }
 .wordmark {
-  display: flex;
-  align-items: center;
-  font-size: 25px;
-  font-weight: 750;
-  letter-spacing: -1px;
-}
-.wordmark svg {
-  margin-right: 12px;
+  width: 220px;
   flex-shrink: 0;
 }
-.brand-dot {
-  color: var(--accent);
+.wordmark img {
+  width: 100%;
+  height: auto;
+}
+.brand-light {
+  display: var(--brand-light-display);
+}
+.brand-dark {
+  display: var(--brand-dark-display);
 }
 .theme-toggle:hover {
   background: var(--tint);
@@ -500,6 +506,6 @@ button:disabled {
     flex-basis: 290px;
   }
   .wordmark {
-    font-size: 23px;
+    width: 180px;
   }
 }

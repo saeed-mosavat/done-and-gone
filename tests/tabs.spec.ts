@@ -213,13 +213,13 @@ test("only committed changes reach readers, including movement, deletion, and im
   await reader.goto("/");
   await expect(reader.getByRole("article")).toHaveCount(1);
   await page
-    .getByRole("button", { name: "Edit Welcome to Doneward", exact: true })
+    .getByRole("button", { name: "Edit Welcome to Done & Gone", exact: true })
     .press("Enter");
   await page
     .getByRole("textbox", { name: "Title", exact: true })
     .fill("Saved title");
   await expect(reader.getByRole("article")).toContainText(
-    "Welcome to Doneward"
+    "Welcome to Done & Gone"
   );
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await expect(reader.getByRole("article")).toContainText("Saved title");

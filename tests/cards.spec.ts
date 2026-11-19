@@ -85,7 +85,9 @@ test("failed card writes never report saved and leave the last saved board intac
   );
   await expect(page.getByRole("status")).toHaveCount(0);
   await page.reload();
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
 });
 
 test("mixed-direction dialogs are accessible in both themes and narrow layouts", async ({
@@ -170,7 +172,7 @@ test("deletion names the card, cancels safely, and an emptied board stays empty"
     .click();
   await page.getByRole("button", { name: "Delete card", exact: true }).click();
   const confirmation = page.getByRole("dialog", { name: "Delete card?" });
-  await expect(confirmation).toContainText("Welcome to Doneward");
+  await expect(confirmation).toContainText("Welcome to Done & Gone");
   await confirmation.getByRole("button", { name: "Cancel" }).click();
   await expect(
     page.getByRole("dialog", { name: "Edit card", exact: true })
@@ -244,7 +246,7 @@ test("whole-card editing saves explicitly and every dismissal protects dirty dra
   }
   await editor.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.getByRole("button", { name: "Discard changes" }).click();
-  await expect(card).toContainText("Welcome to Doneward");
+  await expect(card).toContainText("Welcome to Done & Gone");
   await expect(card.getByRole("button", { name: /^Edit / })).toBeFocused();
   await card.getByRole("button", { name: /^Edit / }).press("Enter");
   await editor.getByLabel("Title", { exact: true }).fill("  Edited  ");

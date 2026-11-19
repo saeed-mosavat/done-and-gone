@@ -1,4 +1,4 @@
-# Doneward
+# Done & Gone
 
 A local-first personal task board. Open a single board on this device, add cards within each column, and open any card to edit, move, reorder, or delete it. Card drafts require explicit Save; dismissing changed drafts asks before discarding. Drag cards directly to move or reorder them, use column handles to reorder columns, or use the card editor and column menus without dragging. Dragging a card to the red delete zone asks for confirmation; cancellation preserves its original position. On touch screens, hold a card or a column handle to start dragging; ordinary swipes still scroll the board. Add columns on the right; use each column's contextual actions to rename it or confirm deletion, choosing whether to transfer or delete its cards. At least one column always remains. Committed changes save automatically to IndexedDB. Export complete backups or replace the board by importing a validated backup through the header's Backups control.
 

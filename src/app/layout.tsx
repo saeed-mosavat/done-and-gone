@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import logo from "../brand/done-and-gone-logo.png";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Doneward",
+  title: "Done & Gone",
   description: "Your personal task board.",
+  icons: { icon: logo.src, apple: logo.src },
 };
 
 export default function RootLayout({

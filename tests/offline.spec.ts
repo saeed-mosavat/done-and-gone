@@ -13,7 +13,7 @@ test("a prepared board reopens offline and saves card changes across reloads", a
   const offline = await context.newPage();
   await offline.goto("/");
   await expect(offline.getByRole("article")).toContainText(
-    "Welcome to Doneward"
+    "Welcome to Done & Gone"
   );
   await offline
     .getByRole("button", { name: "Add a card", exact: true })
@@ -50,7 +50,7 @@ test("a prepared board reopens offline and saves card changes across reloads", a
   await offline.reload();
   await expect(offline.getByRole("article")).toHaveCount(1);
   await expect(offline.getByRole("article")).toContainText(
-    "Welcome to Doneward"
+    "Welcome to Done & Gone"
   );
 });
 
@@ -120,7 +120,7 @@ test("offline column management, movement, ordering, and backup round trips surv
   ]);
   await expect(page.getByRole("heading", { level: 3 })).toHaveText([
     "Next قدم",
-    "Welcome to Doneward",
+    "Welcome to Done & Gone",
   ]);
   await page.getByRole("button", { name: "Backups", exact: true }).click();
   const downloadPromise = page.waitForEvent("download");
@@ -165,7 +165,7 @@ test("offline column management, movement, ordering, and backup round trips surv
   ]);
   await expect(reopened.getByRole("heading", { level: 3 })).toHaveText([
     "Next قدم",
-    "Welcome to Doneward",
+    "Welcome to Done & Gone",
   ]);
 });
 

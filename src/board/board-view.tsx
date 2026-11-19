@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import lightLogo from "../brand/done-and-gone-horizontal-light.png";
+import darkLogo from "../brand/done-and-gone-horizontal-dark.png";
 import { type Board, type Card, type Column } from "./storage";
 import { useBoardSession } from "./use-board-session";
 import { CardEditor } from "./card-editor";
@@ -170,19 +173,21 @@ export default function BoardView() {
   return (
     <main className="app" data-theme={theme}>
       <header className="app-header">
-        <h1 className="wordmark">
-          <svg aria-hidden="true" viewBox="0 0 36 36" width="36" height="36">
-            <rect width="36" height="36" rx="11" fill="#3973d6" />
-            <path
-              d="m10 18 6 6 11-13"
-              fill="none"
-              stroke="white"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Doneward<span className="brand-dot">.</span>
+        <h1 className="wordmark" aria-label="Done & Gone">
+          <Image
+            className="brand-light"
+            src={lightLogo}
+            alt=""
+            unoptimized
+            loading="eager"
+          />
+          <Image
+            className="brand-dark"
+            src={darkLogo}
+            alt=""
+            unoptimized
+            loading="eager"
+          />
         </h1>
         <div className="header-actions">
           <button
