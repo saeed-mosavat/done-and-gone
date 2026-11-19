@@ -1,4 +1,9 @@
-import { test, expect } from "./deployment-fixture";
+import {
+  test,
+  expect,
+  prepareOffline,
+  checkForUpdate,
+} from "./deployment-fixture";
 import AxeBuilder from "@axe-core/playwright";
 
 test("a real prepared update waits, protects a draft, and reloads only on request", async ({
@@ -6,16 +11,12 @@ test("a real prepared update waits, protects a draft, and reloads only on reques
   deployment,
 }) => {
   await page.goto(deployment.url);
-  await page.evaluate(() =>
-    navigator.serviceWorker.ready.then(() => undefined)
-  );
+  await prepareOffline(page);
   await page.getByRole("article").click();
   await page.getByLabel("Title", { exact: true }).fill("یادداشت Draft 123");
   await page.getByLabel("Description").fill("فارسی English\nEnglish فارسی");
   deployment.publish();
-  await page.evaluate(async () => {
-    await (await navigator.serviceWorker.getRegistration())!.update();
-  });
+  await checkForUpdate(page);
   const editor = page.getByRole("dialog", { name: "Edit card", exact: true });
   await expect(
     editor.getByText("Update available", { exact: true })
@@ -61,9 +62,7 @@ test("discarding a card draft to update preserves saved content and board order"
   deployment,
 }) => {
   await page.goto(deployment.url);
-  await page.evaluate(() =>
-    navigator.serviceWorker.ready.then(() => undefined)
-  );
+  await prepareOffline(page);
   await page
     .getByRole("button", { name: "Add a card", exact: true })
     .first()
@@ -74,9 +73,7 @@ test("discarding a card draft to update preserves saved content and board order"
   await page.getByRole("article").last().click();
   await page.getByLabel("Title", { exact: true }).fill("Discard this draft");
   deployment.publish();
-  await page.evaluate(async () => {
-    await (await navigator.serviceWorker.getRegistration())!.update();
-  });
+  await checkForUpdate(page);
   await page.getByRole("button", { name: "Reload to update" }).press("Enter");
   await page.getByRole("button", { name: "Discard and reload" }).press("Enter");
   await expect(page).toHaveTitle("Doneward revision 2");
@@ -95,18 +92,14 @@ test("an update applied in another tab never reloads the editor or loses its dra
   deployment,
 }) => {
   await page.goto(deployment.url);
-  await page.evaluate(() =>
-    navigator.serviceWorker.ready.then(() => undefined)
-  );
+  await prepareOffline(page);
   await page.getByRole("article").click();
   await page.getByLabel("Title", { exact: true }).fill("Still editing");
   const reader = await context.newPage();
   await reader.goto(deployment.url);
   await expect(reader.getByRole("note")).toContainText("Read-only");
   deployment.publish();
-  await reader.evaluate(async () => {
-    await (await navigator.serviceWorker.getRegistration())!.update();
-  });
+  await checkForUpdate(reader);
   await reader.getByRole("button", { name: "Reload to update" }).click();
   await expect(reader).toHaveTitle("Doneward revision 2");
   await expect(page).toHaveTitle("Doneward revision 1");
@@ -132,9 +125,7 @@ for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 960 });
       await page.emulateMedia({ colorScheme: theme });
       await page.goto(deployment.url);
-      await page.evaluate(() =>
-        navigator.serviceWorker.ready.then(() => undefined)
-      );
+      await prepareOffline(page);
       const todo = page.getByRole("region", { name: "Todo", exact: true });
       await todo.getByLabel("Column actions", { exact: true }).click();
       await todo.getByRole("button", { name: "Rename column" }).click();
@@ -177,9 +168,7 @@ for (const width of [1440, 390]) {
       );
       await context.setOffline(false);
       deployment.publish();
-      await page.evaluate(async () => {
-        await (await navigator.serviceWorker.getRegistration())!.update();
-      });
+      await checkForUpdate(page);
       await expect(
         page.getByText("Update available", { exact: true })
       ).toBeVisible();
@@ -228,9 +217,7 @@ test("a failed update preparation leaves the previously prepared app usable offl
   deployment,
 }) => {
   await page.goto(deployment.url);
-  await page.evaluate(() =>
-    navigator.serviceWorker.ready.then(() => undefined)
-  );
+  await prepareOffline(page);
   deployment.publish(true);
   await page.evaluate(async () => {
     const registration = (await navigator.serviceWorker.getRegistration())!;
@@ -258,17 +245,13 @@ test("a column draft can defer an update, save, and then reload", async ({
   deployment,
 }) => {
   await page.goto(deployment.url);
-  await page.evaluate(() =>
-    navigator.serviceWorker.ready.then(() => undefined)
-  );
+  await prepareOffline(page);
   await page
     .getByRole("button", { name: "Add column", exact: true })
     .press("Enter");
   await page.getByLabel("Column name").fill("برنامه Queue");
   deployment.publish();
-  await page.evaluate(async () => {
-    await (await navigator.serviceWorker.getRegistration())!.update();
-  });
+  await checkForUpdate(page);
   await page.getByRole("button", { name: "Reload to update" }).press("Enter");
   await page.getByRole("button", { name: "Keep editing" }).press("Enter");
   await expect(page.getByLabel("Column name")).toHaveValue("برنامه Queue");
@@ -288,15 +271,11 @@ test.describe("touch updates", () => {
     deployment,
   }) => {
     await page.goto(deployment.url);
-    await page.evaluate(() =>
-      navigator.serviceWorker.ready.then(() => undefined)
-    );
+    await prepareOffline(page);
     await page.getByRole("article").tap();
     await page.getByLabel("Title", { exact: true }).fill("Touch draft");
     deployment.publish();
-    await page.evaluate(async () => {
-      await (await navigator.serviceWorker.getRegistration())!.update();
-    });
+    await checkForUpdate(page);
     await page.getByRole("button", { name: "Reload to update" }).tap();
     await page.getByRole("button", { name: "Keep editing" }).tap();
     await expect(page.getByLabel("Title", { exact: true })).toHaveValue(

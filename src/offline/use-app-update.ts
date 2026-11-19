@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
 export function useAppUpdate() {
-  const [waiting, setWaiting] = useState<ServiceWorker>();
+  // May be waiting, or already activated by another tab without reloading this one.
+  const [updateWorker, setUpdateWorker] = useState<ServiceWorker>();
   useEffect(() => {
     if (
       !("serviceWorker" in navigator) ||
@@ -13,14 +14,14 @@ export function useAppUpdate() {
     let hadController = !!navigator.serviceWorker.controller;
     function changed() {
       if (hadController && navigator.serviceWorker.controller)
-        setWaiting(navigator.serviceWorker.controller);
+        setUpdateWorker(navigator.serviceWorker.controller);
       hadController = true;
     }
     navigator.serviceWorker.addEventListener("controllerchange", changed);
     const watched = new Set<ServiceWorker>();
     function check() {
       if (!disposed && registration?.waiting && registration.active)
-        setWaiting(registration.waiting);
+        setUpdateWorker(registration.waiting);
       const worker = registration?.installing;
       if (worker && !watched.has(worker)) {
         watched.add(worker);
@@ -56,8 +57,11 @@ export function useAppUpdate() {
   }, []);
 
   function apply() {
-    if (!waiting) return;
-    if (waiting.state === "activated" || waiting.state === "redundant") {
+    if (!updateWorker) return;
+    if (
+      updateWorker.state === "activated" ||
+      updateWorker.state === "redundant"
+    ) {
       window.location.reload();
       return;
     }
@@ -67,7 +71,7 @@ export function useAppUpdate() {
       () => window.location.reload(),
       { once: true }
     );
-    waiting.postMessage("APPLY_UPDATE");
+    updateWorker.postMessage("APPLY_UPDATE");
   }
-  return { available: !!waiting, apply };
+  return { available: !!updateWorker, apply };
 }

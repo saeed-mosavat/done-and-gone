@@ -1,5 +1,17 @@
 import { createServer } from "node:http";
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, type Page } from "@playwright/test";
+
+export async function prepareOffline(page: Page) {
+  await page.evaluate(() =>
+    navigator.serviceWorker.ready.then(() => undefined)
+  );
+}
+
+export async function checkForUpdate(page: Page) {
+  await page.evaluate(async () => {
+    await (await navigator.serviceWorker.getRegistration())!.update();
+  });
+}
 
 // A real HTTP deployment boundary: the production worker and chunks are served
 // unchanged apart from a deployment identity and a visible HTML title.
