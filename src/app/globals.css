@@ -209,17 +209,20 @@ button:focus-visible {
 }
 
 .app {
-  padding: 26px 4vw;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px;
 }
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 24px;
+  flex-shrink: 0;
+  padding-bottom: 4px;
   border-bottom: 1px solid var(--border);
 }
 .wordmark {
-  width: 220px;
+  width: 168px;
   flex-shrink: 0;
 }
 .wordmark img {
@@ -238,10 +241,11 @@ button:focus-visible {
 }
 .board {
   display: flex;
+  flex: 1;
   gap: 22px;
   overflow-x: auto;
-  padding: 30px 14px 16px;
-  min-height: calc(100dvh - 160px);
+  padding: 12px 0 0;
+  min-height: 0;
   align-items: stretch;
   scrollbar-color: var(--border) var(--page);
 }
@@ -493,19 +497,15 @@ button:disabled {
 }
 @media (max-width: 600px) {
   .app {
-    padding: 18px 16px;
-  }
-  .app-header {
-    padding-bottom: 18px;
+    padding: 8px 12px;
   }
   .board {
-    padding: 22px 4px 14px;
     gap: 16px;
   }
   .column {
     flex-basis: 290px;
   }
   .wordmark {
-    width: 180px;
+    width: 150px;
   }
 }

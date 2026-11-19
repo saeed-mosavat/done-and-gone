@@ -876,6 +876,8 @@ test("movement controls and drag states are accessible in both themes and narrow
       const preview = page.locator(".drag-preview");
       await expect(preview).toHaveText(sourceName);
       await expect(preview.locator("bdi")).toHaveCSS("direction", "rtl");
+      // Keep fractional handle positions from changing screenshot pixel rounding.
+      await page.mouse.move(40, 120);
       await expect(preview).toHaveScreenshot(
         `column-preview-${width}-${colorScheme}.png`
       );
