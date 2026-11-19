@@ -351,6 +351,7 @@ button:disabled {
 }
 .card {
   position: relative;
+  max-height: 240px;
   padding: 22px 19px;
   margin-bottom: 12px;
   border: 1px solid var(--border);
@@ -454,11 +455,17 @@ button:disabled {
   border-color: #b42336;
 }
 .card h3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   font-size: 13px;
   font-weight: 700;
   line-height: 1.6;
 }
 .card > div {
+  max-height: 10.8em;
+  overflow: hidden;
   margin-top: 10px;
   color: var(--muted);
   font-size: 12px;

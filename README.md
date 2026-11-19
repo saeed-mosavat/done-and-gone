@@ -17,6 +17,8 @@ The theme follows the system until explicitly toggled. Your choice is stored on 
 
 On desktop, the card editor focuses on title and description; **Move card** opens a separate destination/position dialog. Choose **Done**, then **Save** the card to apply movement. Narrow screens retain inline movement controls.
 
+Cards show compact previews (up to two title lines and six description lines, at most 240px high). Open a card to read or edit its complete text; previews never truncate saved content.
+
 ## Checks
 
 ```sh

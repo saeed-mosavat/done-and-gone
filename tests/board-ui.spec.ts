@@ -1,4 +1,48 @@
 import { expect, test } from "@playwright/test";
+import { seedBoard } from "./storage-fixture";
+
+test("large card previews stay bounded without truncating saved text", async ({
+  page,
+}) => {
+  const title = "عنوان Long title ".repeat(15).slice(0, 200);
+  const description = "متن فارسی English\n\n".repeat(1200).slice(0, 20000);
+  await seedBoard(page, {
+    version: 1,
+    columns: [
+      {
+        id: "a",
+        name: "Long content",
+        cards: [
+          { id: "long", title, description },
+          { id: "next", title: "Still visible" },
+        ],
+      },
+    ],
+  });
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    const cards = page.getByRole("article");
+    const first = (await cards.first().boundingBox())!;
+    const second = (await cards.last().boundingBox())!;
+    expect(first.height).toBeLessThanOrEqual(240);
+    expect(second.y).toBeLessThan(450);
+    await expect(cards.last()).toBeInViewport();
+    for (const colorScheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme });
+      await expect(page.getByRole("main")).toHaveScreenshot(
+        `bounded-cards-${width}-${colorScheme}.png`
+      );
+    }
+    await cards.first().getByRole("button").click();
+    await expect(page.getByLabel("Title", { exact: true })).toHaveValue(title);
+    await expect(page.getByLabel("Description", { exact: true })).toHaveValue(
+      description
+    );
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(page.getByRole("status")).toHaveText("Saved on this device");
+    await page.reload();
+  }
+});
 
 test("column headers begin with a usable drag handle instead of a dot", async ({
   page,

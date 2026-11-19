@@ -25,6 +25,7 @@
 - A narrow, borderless Add column action follows the last column on the right, with a plus icon above a vertically oriented label, as shown in the visual references.
 - Column contextual actions pair icons with text labels. Clicking or tapping outside an open column menu closes it without blocking the outside action.
 - Cards show their title and optional description. The entire card opens the editor. No Open card label, decorative ellipsis, or card footer is needed.
+- Card previews are at most 240px high: titles show at most two lines and descriptions at most six lines. Keep the full original content available in the editor, saved data, and backups; clipping is visual only.
 - Do not infer fixed status semantics from column names or positions: columns are customizable. The prototype's muted Done cards are illustrative, not a requirement to mark a renamed or third column completed.
 
 ## Palette and treatment
