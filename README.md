@@ -15,6 +15,8 @@ Open http://localhost:3000. For a production build, run `npm run build`, then `n
 
 The theme follows the system until explicitly toggled. Your choice is stored on this browser and reused across refreshes and tabs. If preference storage is unavailable, toggling still works for the current visit.
 
+On desktop, the card editor focuses on title and description; **Move card** opens a separate destination/position dialog. Choose **Done**, then **Save** the card to apply movement. Narrow screens retain inline movement controls.
+
 ## Checks
 
 ```sh

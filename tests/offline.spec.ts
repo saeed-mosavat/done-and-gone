@@ -71,9 +71,11 @@ test("offline column management, movement, ordering, and backup round trips surv
     .press("Enter");
   await saved();
   await page.getByRole("article").click();
+  await page.getByRole("button", { name: "Move card", exact: true }).click();
   await page
     .getByLabel("Column", { exact: true })
     .selectOption({ label: "1. Doing" });
+  await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await saved();
   await doing.getByRole("button", { name: "Add a card", exact: true }).click();
@@ -81,7 +83,9 @@ test("offline column management, movement, ordering, and backup round trips surv
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await saved();
   await doing.getByRole("article").last().click();
+  await page.getByRole("button", { name: "Move card", exact: true }).click();
   await page.getByLabel("Position", { exact: true }).selectOption("0");
+  await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await saved();
   await page.getByRole("button", { name: "Add column", exact: true }).click();

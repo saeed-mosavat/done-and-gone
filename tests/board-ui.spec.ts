@@ -1,5 +1,45 @@
 import { expect, test } from "@playwright/test";
 
+test("desktop editing separates movement and keeps unsaved changes protected", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("article").click();
+  const editor = page.getByRole("dialog", { name: "Edit card", exact: true });
+  await expect(editor.getByLabel("Column", { exact: true })).toHaveCount(0);
+  await expect(editor.getByLabel("Position", { exact: true })).toHaveCount(0);
+  const move = editor.getByRole("button", { name: "Move card", exact: true });
+  await move.press("Enter");
+  const movement = page.getByRole("dialog", { name: "Move card", exact: true });
+  await expect(movement.getByLabel("Column", { exact: true })).toBeFocused();
+  await movement
+    .getByLabel("Column", { exact: true })
+    .selectOption({ label: "2. Doing" });
+  await page.keyboard.press("Escape");
+  await expect(movement).toHaveCount(0);
+  await expect(move).toBeFocused();
+  await editor.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Discard unsaved edits?" })
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Keep editing", exact: true }).click();
+  await editor.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("status")).toHaveText("Saved on this device");
+  await page.reload();
+  await expect(
+    page
+      .getByRole("region", { name: "Doing", exact: true })
+      .getByRole("article")
+  ).toHaveCount(1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("article").click();
+  await expect(editor.getByLabel("Column", { exact: true })).toBeVisible();
+  await expect(editor.getByLabel("Position", { exact: true })).toBeVisible();
+  await expect(
+    editor.getByRole("button", { name: "Move card", exact: true })
+  ).toHaveCount(0);
+});
+
 test("column titles are prominent at desktop and narrow widths", async ({
   page,
 }) => {

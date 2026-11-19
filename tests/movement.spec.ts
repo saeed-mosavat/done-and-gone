@@ -32,7 +32,14 @@ test("editor movement and ordering are draft changes until Save and survive relo
     .getByRole("button", { name: "Edit Second", exact: true })
     .press("Enter");
   const dialog = page.getByRole("dialog", { name: "Edit card", exact: true });
-  await dialog.getByLabel("Column", { exact: true }).selectOption("c");
+  await dialog
+    .getByRole("button", { name: "Move card", exact: true })
+    .press("Enter");
+  const movement = page.getByRole("dialog", { name: "Move card", exact: true });
+  await movement.getByLabel("Column", { exact: true }).selectOption("c");
+  await movement
+    .getByRole("button", { name: "Done", exact: true })
+    .press("Enter");
   await dialog
     .getByRole("button", { name: "Cancel", exact: true })
     .press("Enter");
@@ -47,7 +54,13 @@ test("editor movement and ordering are draft changes until Save and survive relo
   await page
     .getByRole("button", { name: "Edit Second", exact: true })
     .press("Enter");
-  await dialog.getByLabel("Position", { exact: true }).selectOption("0");
+  await dialog
+    .getByRole("button", { name: "Move card", exact: true })
+    .press("Enter");
+  await movement.getByLabel("Position", { exact: true }).selectOption("0");
+  await movement
+    .getByRole("button", { name: "Done", exact: true })
+    .press("Enter");
   await dialog
     .getByRole("button", { name: "Save", exact: true })
     .press("Enter");
@@ -481,8 +494,20 @@ test("editor can move to empty columns and first/last positions without losing c
       .getByRole("button", { name: "Edit Second", exact: true })
       .press("Enter");
     const dialog = page.getByRole("dialog", { name: "Edit card", exact: true });
-    await dialog.getByLabel("Column", { exact: true }).selectOption(column);
-    await dialog.getByLabel("Position", { exact: true }).selectOption(position);
+    await dialog
+      .getByRole("button", { name: "Move card", exact: true })
+      .press("Enter");
+    const movement = page.getByRole("dialog", {
+      name: "Move card",
+      exact: true,
+    });
+    await movement.getByLabel("Column", { exact: true }).selectOption(column);
+    await movement
+      .getByLabel("Position", { exact: true })
+      .selectOption(position);
+    await movement
+      .getByRole("button", { name: "Done", exact: true })
+      .press("Enter");
     await dialog
       .getByRole("button", { name: "Save", exact: true })
       .press("Enter");

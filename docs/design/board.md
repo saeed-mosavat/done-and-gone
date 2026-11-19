@@ -50,7 +50,7 @@ These are starting tokens, not a completed accessibility audit. Adjust contrast 
 ## Card creation and editing
 
 - A column's add-card action opens a New card dialog already bound to that column. **Hide the column selector in this creation flow.**
-- Clicking anywhere on an existing card opens Edit card. Keep a column selector or equivalent accessible movement control for existing cards.
+- Clicking anywhere on an existing card opens Edit card. On desktop (above 600px), omit Column and Position inputs from the edit form; a separate Move card dialog keeps non-drag movement available. Its choices remain drafts until the card is saved. On narrow screens, retain the inline movement controls.
 - The dialog has title and description fields, Save and Cancel, and a close control. Keep the specification's unsaved-edit discard confirmation.
 - Preserve required-title validation, input limits, automatic persistence of committed edits, and accessible keyboard/touch paths from issue #1.
 

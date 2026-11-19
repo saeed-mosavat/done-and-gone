@@ -227,7 +227,9 @@ test("only committed changes reach readers, including movement, deletion, and im
   await page
     .getByRole("button", { name: "Edit Saved title", exact: true })
     .press("Enter");
+  await page.getByRole("button", { name: "Move card", exact: true }).click();
   await page.getByLabel("Column", { exact: true }).selectOption("doing");
+  await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await expect(
     reader
