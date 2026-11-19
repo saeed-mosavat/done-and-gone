@@ -20,7 +20,7 @@
 - Maintainer refinement (2026-11-19): use compact page padding and a smaller wordmark/header so columns start within the top 90px on desktop and narrow screens. The board fills the remaining viewport height.
 - Do not show a persistent saved-on-this-device footer. Keep saving announcements available to assistive technology and storage failures visibly actionable.
 - Side-by-side columns occupy the available board area, with generous vertical space. Narrow viewports scroll columns horizontally instead of stacking them vertically.
-- Each column header shows a subtle colored dot, its user-defined name, and an add-card button. Do not display card-count indicators. A second Add a card action follows its cards.
+- Each column header starts with its drag handle, followed by its user-defined name and an add-card button. Do not display colored dots or card-count indicators. A second Add a card action follows its cards.
 - Column titles use prominent 18px type and wrap long mixed-direction names without displacing the column controls.
 - A narrow, borderless Add column action follows the last column on the right, with a plus icon above a vertically oriented label, as shown in the visual references.
 - Column contextual actions pair icons with text labels. Clicking or tapping outside an open column menu closes it without blocking the outside action.

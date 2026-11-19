@@ -1,5 +1,29 @@
 import { expect, test } from "@playwright/test";
 
+test("column headers begin with a usable drag handle instead of a dot", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator(".column-dot")).toHaveCount(0);
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 960 });
+    const column = page.getByRole("region", { name: "Todo", exact: true });
+    const handle = column.getByRole("button", {
+      name: "Drag column Todo",
+      exact: true,
+    });
+    const heading = column.getByRole("heading", { name: "Todo", exact: true });
+    expect((await handle.boundingBox())!.x).toBeLessThan(
+      (await heading.boundingBox())!.x
+    );
+    await handle.press("Enter");
+    await expect(
+      column.getByRole("button", { name: "Rename column", exact: true })
+    ).toBeVisible();
+    await page.getByRole("heading", { level: 1 }).click();
+  }
+});
+
 test("desktop editing separates movement and keeps unsaved changes protected", async ({
   page,
 }) => {

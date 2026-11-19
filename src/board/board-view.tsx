@@ -277,8 +277,6 @@ export default function BoardView() {
                 aria-label={column.name}
               >
                 <div className="column-header">
-                  <span aria-hidden="true" className="column-dot" />
-                  <h2 dir="auto">{column.name}</h2>
                   <button
                     className="drag-handle column-drag-handle"
                     data-drag-kind="column"
@@ -295,6 +293,7 @@ export default function BoardView() {
                   >
                     <span aria-hidden="true">⠿</span>
                   </button>
+                  <h2 dir="auto">{column.name}</h2>
                   <button
                     id={`add-${column.id}`}
                     disabled={!editing || saving}
