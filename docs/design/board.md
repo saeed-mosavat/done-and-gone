@@ -30,6 +30,8 @@
 
 Use a blue-toned visual system: cool near-white page background, pale blue column surfaces, white cards, dark navy primary text, muted blue-gray secondary text, and blue actions/focus indicators. Dark mode keeps the blue character with deep navy surfaces and light text.
 
+Follow the system theme until the user chooses light or dark. Persist that choice across refreshes and tabs; unavailable preference storage must not disable the toggle.
+
 Reference tokens from the approved prototype:
 
 | Role           | Light     | Dark      |

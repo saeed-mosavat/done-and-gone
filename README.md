@@ -13,6 +13,8 @@ npm run dev
 
 Open http://localhost:3000. For a production build, run `npm run build`, then `npm start`.
 
+The theme follows the system until explicitly toggled. Your choice is stored on this browser and reused across refreshes and tabs. If preference storage is unavailable, toggling still works for the current visit.
+
 ## Checks
 
 ```sh

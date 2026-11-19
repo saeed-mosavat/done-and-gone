@@ -15,6 +15,7 @@ import { useBoardDrag } from "./use-board-drag";
 import { Backups } from "./backups";
 import { useAppUpdate } from "../offline/use-app-update";
 import { UpdateNotice } from "../offline/update-notice";
+import { useTheme } from "./use-theme";
 
 function CardContent({ card }: { card: Card }) {
   return (
@@ -38,7 +39,7 @@ export default function BoardView() {
   const update = useAppUpdate();
   const { board, setBoard, failure, setFailure, editing, save } =
     useBoardSession();
-  const [theme, setTheme] = useState<"light" | "dark">();
+  const [theme, setTheme] = useTheme();
   const [editor, setEditor] = useState<{ columnId: string; card?: Card }>();
   const [columnEditor, setColumnEditor] = useState<{ column?: Column }>();
   const [deletingColumn, setDeletingColumn] = useState<Column>();
