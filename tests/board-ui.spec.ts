@@ -1,5 +1,22 @@
 import { expect, test } from "@playwright/test";
 
+test("column titles are prominent at desktop and narrow widths", async ({
+  page,
+}) => {
+  await page.goto("/");
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 960 });
+    await expect(
+      page.getByRole("heading", { name: "Todo", exact: true })
+    ).toHaveCSS("font-size", "18px");
+    await expect(
+      page
+        .getByRole("region", { name: "Todo", exact: true })
+        .getByRole("button", { name: "Add card", exact: true })
+    ).toBeVisible();
+  }
+});
+
 test("a chosen theme survives refresh and is shared with another tab", async ({
   page,
   context,
