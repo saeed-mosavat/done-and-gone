@@ -295,12 +295,6 @@ export default function BoardView() {
                   >
                     <span aria-hidden="true">⠿</span>
                   </button>
-                  <span
-                    className="card-count"
-                    aria-label={`${column.cards.length} cards`}
-                  >
-                    {column.cards.length}
-                  </span>
                   <button
                     id={`add-${column.id}`}
                     disabled={!editing || saving}

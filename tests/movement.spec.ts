@@ -334,9 +334,7 @@ test("card drags reorder both directions, move into empty and populated columns,
     await destination.getByRole("article").last().locator("div").textContent()
   ).toBe("  فارسی UI.\nEnglish 7.\n\nپایان!  ");
   await expect(page.getByRole("article")).toHaveCount(4);
-  await expect(
-    destination.getByLabel("2 cards", { exact: true })
-  ).toBeVisible();
+  await expect(destination.getByRole("article")).toHaveCount(2);
 });
 
 test("column dragging changes LTR order in either direction without changing cards", async ({

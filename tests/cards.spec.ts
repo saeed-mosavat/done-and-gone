@@ -185,7 +185,7 @@ test("deletion names the card, cancels safely, and an emptied board stays empty"
   await expect(page.getByRole("article")).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole("article")).toHaveCount(0);
-  await expect(page.getByLabel("0 cards", { exact: true })).toHaveCount(3);
+  await expect(page.getByRole("heading", { level: 2 })).toHaveCount(3);
 });
 
 test("card validation accepts exact limits and duplicate titles without truncating invalid input", async ({
@@ -278,7 +278,7 @@ test("both column-scoped entry points append cards and persist their order", asy
     "Add card",
     "Add a card",
   ]);
-  await expect(column.getByLabel("2 cards", { exact: true })).toBeVisible();
+  await expect(column.getByRole("article")).toHaveCount(2);
   await page.reload();
   await expect(column.getByRole("heading", { level: 3 })).toHaveText([
     "Add card",

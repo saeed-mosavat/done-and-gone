@@ -395,7 +395,8 @@ for (const theme of ["light", "dark"] as const) {
         "direction",
         "ltr"
       );
-      await expect(reader.locator(".card-count")).toHaveText(["1", "0", "0"]);
+      await expect(reader.locator(".card-count")).toHaveCount(0);
+      await expect(reader.getByRole("article")).toHaveCount(1);
       expect(
         (await new AxeBuilder({ page: reader }).analyze()).violations
       ).toEqual([]);
