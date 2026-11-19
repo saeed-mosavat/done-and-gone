@@ -10,6 +10,8 @@ import { placeCard, placeColumn } from "./movement";
 import { Confirmation } from "./confirmation";
 import { useBoardDrag } from "./use-board-drag";
 import { Backups } from "./backups";
+import { useAppUpdate } from "../offline/use-app-update";
+import { UpdateNotice } from "../offline/update-notice";
 
 function CardContent({ card }: { card: Card }) {
   return (
@@ -30,6 +32,7 @@ function CardContent({ card }: { card: Card }) {
 }
 
 export default function BoardView() {
+  const update = useAppUpdate();
   const { board, setBoard, failure, setFailure, editing, save } =
     useBoardSession();
   const [theme, setTheme] = useState<"light" | "dark">();
@@ -218,6 +221,12 @@ export default function BoardView() {
           </button>
         </div>
       </header>
+      {update.available && !editor && !columnEditor && (
+        <UpdateNotice
+          apply={update.apply}
+          disabled={saving || !!failure || !!drag}
+        />
+      )}
       {failure ? (
         <p role="alert">{failure}</p>
       ) : !board ? (
@@ -587,6 +596,11 @@ export default function BoardView() {
           )}
           {editor && (
             <CardEditor
+              update={
+                update.available ? (
+                  <UpdateNotice apply={update.apply} protectDraft />
+                ) : undefined
+              }
               columns={board.columns}
               columnId={editor.columnId}
               card={editor.card}
@@ -627,6 +641,11 @@ export default function BoardView() {
           )}
           {columnEditor && (
             <ColumnEditor
+              update={
+                update.available ? (
+                  <UpdateNotice apply={update.apply} protectDraft />
+                ) : undefined
+              }
               initialName={columnEditor.column?.name}
               onClose={() => setColumnEditor(undefined)}
               onSave={(name) => {

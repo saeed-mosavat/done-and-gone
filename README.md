@@ -42,7 +42,15 @@ Use **Backups** in the header to download a complete version 1 JSON backup or im
 
 The browser owns the board; no server database or account is used. IndexedDB database `doneward` (version 1), store `boards`, key `current` contains `{ version: 1, columns: [{ id, name, cards: [{ id, title, description? }] }]`. Array order is board order. Column IDs are unique and each card ID occurs exactly once across the board. Empty saved boards retain at least one column.
 
-Only an absent key triggers starter-board creation. Invalid or unreadable saved data displays an error without replacement; writes count as saved only after the transaction commits. Full recovery controls and offline application caching belong to later tickets. Clearing browser site data can remove the board.
+Only an absent key triggers starter-board creation. Invalid or unreadable saved data displays an error without replacement; writes count as saved only after the transaction commits. Full recovery controls belong to a later ticket. Clearing browser site data can remove the board.
+
+## Offline use and updates
+
+In production over HTTPS (or localhost), a service worker prepares the complete application shell and immutable assets after the first online visit. Once preparation finishes, the board can be closed and reopened offline; all delivered local board features still work, including saves and backups. Preparation is atomic: a failed download does not replace the previously prepared application. Browser site-data clearing or storage eviction can remove offline availability, so keep exported backups outside the browser.
+
+New deployments prepare in the background on visits, reconnection, or returning to the tab. **Update available** offers **Reload to update** without automatically refreshing any tab. Card and column dialogs also offer the action, with **Keep editing** or explicit discard confirmation; save drafts first to retain them. Applying an update preserves the saved board. Other tabs keep their current view and drafts until they choose to reload.
+
+The `/sw.js` route embeds the production build ID and all files under `.next/static`; deployments must serve `.next/BUILD_ID` and `.next/static` alongside the Next.js server. Shells and assets are versioned together, and previous caches are retained so older open tabs can still load their chunks. Development does not register a worker; use a separate origin/port from production to avoid an installed production worker controlling development pages.
 
 ## Multiple tabs
 

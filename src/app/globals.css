@@ -57,6 +57,30 @@ button {
   color: var(--text);
   font-size: 13px;
 }
+.update-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0 24px 16px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--tint);
+  color: var(--text);
+  font-size: 13px;
+}
+.update-notice button {
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.card-dialog .update-notice {
+  margin: 0 0 20px;
+}
 .backup-toggle {
   color: var(--muted);
   font-size: 13px;

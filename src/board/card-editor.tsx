@@ -9,6 +9,7 @@ export function CardEditor({
   onDelete,
   columns,
   columnId,
+  update,
 }: {
   card?: Card;
   onClose: () => void;
@@ -16,6 +17,7 @@ export function CardEditor({
   onDelete: () => void;
   columns: Column[];
   columnId: string;
+  update?: React.ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [title, setTitle] = useState(card?.title ?? "");
@@ -76,6 +78,7 @@ export function CardEditor({
         dismiss();
       }}
     >
+      {update}
       <form
         onSubmit={(event) => {
           event.preventDefault();
