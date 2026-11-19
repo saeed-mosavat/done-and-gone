@@ -581,7 +581,7 @@ export default function BoardView() {
               </p>
             </Confirmation>
           )}
-          <p className="save-status" role="status">
+          <p className="sr-only" role="status">
             {!editing
               ? "Read-only · Saved on this device"
               : saving

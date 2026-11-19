@@ -1,5 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+test("saving announcements do not occupy a visible footer", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const status = page.getByRole("status");
+  await expect(status).toHaveText("Saved on this device");
+  const bounds = (await status.boundingBox())!;
+  expect(bounds.width).toBeLessThanOrEqual(1);
+  expect(bounds.height).toBeLessThanOrEqual(1);
+});
+
 test("the compact header keeps the board within the top 90px", async ({
   page,
 }) => {
