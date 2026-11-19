@@ -45,12 +45,12 @@ export const test = base.extend<{
           response.end(
             (await upstream.text())
               .replace(
-                "<title>Doneward</title>",
-                `<title>Doneward revision ${revision}</title>`
+                "<title>Done &amp; Gone</title>",
+                `<title>Done &amp; Gone revision ${revision}</title>`
               )
               .replace(
-                String.raw`\"children\":\"Doneward\"`,
-                String.raw`\"children\":\"Doneward revision ${revision}\"`
+                String.raw`\"children\":\"Done \u0026 Gone\"`,
+                String.raw`\"children\":\"Done \u0026 Gone revision ${revision}\"`
               )
           );
         } else {

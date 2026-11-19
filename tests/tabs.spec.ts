@@ -213,13 +213,13 @@ test("only committed changes reach readers, including movement, deletion, and im
   await reader.goto("/");
   await expect(reader.getByRole("article")).toHaveCount(1);
   await page
-    .getByRole("button", { name: "Edit Welcome to Doneward", exact: true })
+    .getByRole("button", { name: "Edit Welcome to Done & Gone", exact: true })
     .press("Enter");
   await page
     .getByRole("textbox", { name: "Title", exact: true })
     .fill("Saved title");
   await expect(reader.getByRole("article")).toContainText(
-    "Welcome to Doneward"
+    "Welcome to Done & Gone"
   );
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await expect(reader.getByRole("article")).toContainText("Saved title");
@@ -227,7 +227,9 @@ test("only committed changes reach readers, including movement, deletion, and im
   await page
     .getByRole("button", { name: "Edit Saved title", exact: true })
     .press("Enter");
+  await page.getByRole("button", { name: "Move card", exact: true }).click();
   await page.getByLabel("Column", { exact: true }).selectOption("doing");
+  await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await expect(
     reader
@@ -395,7 +397,8 @@ for (const theme of ["light", "dark"] as const) {
         "direction",
         "ltr"
       );
-      await expect(reader.locator(".card-count")).toHaveText(["1", "0", "0"]);
+      await expect(reader.locator(".card-count")).toHaveCount(0);
+      await expect(reader.getByRole("article")).toHaveCount(1);
       expect(
         (await new AxeBuilder({ page: reader }).analyze()).violations
       ).toEqual([]);

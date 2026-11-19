@@ -442,8 +442,16 @@ test("delete-all requires an explicit choice and confirmation, preserving other 
   await expect(page.getByRole("heading", { level: 3 })).toHaveText([
     "Already here",
   ]);
-  await expect(page.getByLabel("1 cards", { exact: true })).toHaveText("1");
-  await expect(page.getByLabel("0 cards", { exact: true })).toHaveText("0");
+  await expect(
+    page
+      .getByRole("region", { name: "Queue صف 3", exact: true })
+      .getByRole("article")
+  ).toHaveCount(1);
+  await expect(
+    page
+      .getByRole("region", { name: "Empty", exact: true })
+      .getByRole("article")
+  ).toHaveCount(0);
 });
 
 test("transfer to an empty column also preserves every card", async ({
@@ -570,8 +578,8 @@ for (const action of [
     await expect(
       page
         .getByRole("region", { name: "Queue صف 3", exact: true })
-        .getByLabel("1 cards", { exact: true })
-    ).toBeVisible();
+        .getByRole("article")
+    ).toHaveCount(1);
   });
 }
 
@@ -644,9 +652,7 @@ test("populated-column transfer requires a choice and appends cards without losi
     "نسخه UI 42",
     "Next قدم 2",
   ]);
-  await expect(destination.getByLabel("3 cards", { exact: true })).toHaveText(
-    "3"
-  );
+  await expect(destination.getByRole("article")).toHaveCount(3);
   expect(
     await destination.getByRole("article").nth(1).locator("div").textContent()
   ).toBe("  فارسی UI.\nEnglish https://example.com (7).\n\nپایان!  ");
@@ -723,7 +729,9 @@ test("even an empty column requires confirmation and cancellation leaves the boa
     "Todo",
     "Done",
   ]);
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
 });
 
 for (const action of ["New column", "Rename column"]) {
@@ -789,14 +797,18 @@ test("contextual renaming preserves cards and accepts duplicate column names", a
     "Doing",
     "Done",
   ]);
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
   await page.reload();
   await expect(page.getByRole("heading", { level: 2 })).toHaveText([
     "Done",
     "Doing",
     "Done",
   ]);
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
 });
 
 // Behavioral and visual coverage follows docs/design/board.md.
@@ -822,7 +834,7 @@ test("adding a column appends it on the right and saves a trimmed name", async (
     "بررسی UI 42",
   ]);
   const last = page.getByRole("region", { name: "بررسی UI 42", exact: true });
-  await expect(last.getByLabel("0 cards", { exact: true })).toBeVisible();
+  await expect(last.getByRole("article")).toHaveCount(0);
   const columnBox = await last.boundingBox();
   const addBox = await add.boundingBox();
   expect(addBox!.x).toBeGreaterThan(columnBox!.x + columnBox!.width);

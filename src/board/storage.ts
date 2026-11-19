@@ -106,7 +106,7 @@ export async function loadBoard(initialize = true): Promise<Board | undefined> {
         cards: [
           {
             id: "welcome",
-            title: "Welcome to Doneward",
+            title: "Welcome to Done & Gone",
             description:
               "Make room for what matters. Your board is saved on this device.",
           },

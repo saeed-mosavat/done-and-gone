@@ -32,7 +32,14 @@ test("editor movement and ordering are draft changes until Save and survive relo
     .getByRole("button", { name: "Edit Second", exact: true })
     .press("Enter");
   const dialog = page.getByRole("dialog", { name: "Edit card", exact: true });
-  await dialog.getByLabel("Column", { exact: true }).selectOption("c");
+  await dialog
+    .getByRole("button", { name: "Move card", exact: true })
+    .press("Enter");
+  const movement = page.getByRole("dialog", { name: "Move card", exact: true });
+  await movement.getByLabel("Column", { exact: true }).selectOption("c");
+  await movement
+    .getByRole("button", { name: "Done", exact: true })
+    .press("Enter");
   await dialog
     .getByRole("button", { name: "Cancel", exact: true })
     .press("Enter");
@@ -47,7 +54,13 @@ test("editor movement and ordering are draft changes until Save and survive relo
   await page
     .getByRole("button", { name: "Edit Second", exact: true })
     .press("Enter");
-  await dialog.getByLabel("Position", { exact: true }).selectOption("0");
+  await dialog
+    .getByRole("button", { name: "Move card", exact: true })
+    .press("Enter");
+  await movement.getByLabel("Position", { exact: true }).selectOption("0");
+  await movement
+    .getByRole("button", { name: "Done", exact: true })
+    .press("Enter");
   await dialog
     .getByRole("button", { name: "Save", exact: true })
     .press("Enter");
@@ -334,9 +347,7 @@ test("card drags reorder both directions, move into empty and populated columns,
     await destination.getByRole("article").last().locator("div").textContent()
   ).toBe("  فارسی UI.\nEnglish 7.\n\nپایان!  ");
   await expect(page.getByRole("article")).toHaveCount(4);
-  await expect(
-    destination.getByLabel("2 cards", { exact: true })
-  ).toBeVisible();
+  await expect(destination.getByRole("article")).toHaveCount(2);
 });
 
 test("column dragging changes LTR order in either direction without changing cards", async ({
@@ -483,8 +494,20 @@ test("editor can move to empty columns and first/last positions without losing c
       .getByRole("button", { name: "Edit Second", exact: true })
       .press("Enter");
     const dialog = page.getByRole("dialog", { name: "Edit card", exact: true });
-    await dialog.getByLabel("Column", { exact: true }).selectOption(column);
-    await dialog.getByLabel("Position", { exact: true }).selectOption(position);
+    await dialog
+      .getByRole("button", { name: "Move card", exact: true })
+      .press("Enter");
+    const movement = page.getByRole("dialog", {
+      name: "Move card",
+      exact: true,
+    });
+    await movement.getByLabel("Column", { exact: true }).selectOption(column);
+    await movement
+      .getByLabel("Position", { exact: true })
+      .selectOption(position);
+    await movement
+      .getByRole("button", { name: "Done", exact: true })
+      .press("Enter");
     await dialog
       .getByRole("button", { name: "Save", exact: true })
       .press("Enter");
@@ -876,6 +899,8 @@ test("movement controls and drag states are accessible in both themes and narrow
       const preview = page.locator(".drag-preview");
       await expect(preview).toHaveText(sourceName);
       await expect(preview.locator("bdi")).toHaveCSS("direction", "rtl");
+      // Keep fractional handle positions from changing screenshot pixel rounding.
+      await page.mouse.move(40, 120);
       await expect(preview).toHaveScreenshot(
         `column-preview-${width}-${colorScheme}.png`
       );

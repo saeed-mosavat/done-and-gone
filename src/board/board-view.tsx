@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import lightLogo from "../brand/done-and-gone-horizontal-light.png";
+import darkLogo from "../brand/done-and-gone-horizontal-dark.png";
 import { type Board, type Card, type Column } from "./storage";
 import { useBoardSession } from "./use-board-session";
 import { CardEditor } from "./card-editor";
@@ -12,6 +15,7 @@ import { useBoardDrag } from "./use-board-drag";
 import { Backups } from "./backups";
 import { useAppUpdate } from "../offline/use-app-update";
 import { UpdateNotice } from "../offline/update-notice";
+import { useTheme } from "./use-theme";
 
 function CardContent({ card }: { card: Card }) {
   return (
@@ -35,7 +39,7 @@ export default function BoardView() {
   const update = useAppUpdate();
   const { board, setBoard, failure, setFailure, editing, save } =
     useBoardSession();
-  const [theme, setTheme] = useState<"light" | "dark">();
+  const [theme, setTheme] = useTheme();
   const [editor, setEditor] = useState<{ columnId: string; card?: Card }>();
   const [columnEditor, setColumnEditor] = useState<{ column?: Column }>();
   const [deletingColumn, setDeletingColumn] = useState<Column>();
@@ -170,19 +174,21 @@ export default function BoardView() {
   return (
     <main className="app" data-theme={theme}>
       <header className="app-header">
-        <h1 className="wordmark">
-          <svg aria-hidden="true" viewBox="0 0 36 36" width="36" height="36">
-            <rect width="36" height="36" rx="11" fill="#3973d6" />
-            <path
-              d="m10 18 6 6 11-13"
-              fill="none"
-              stroke="white"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Doneward<span className="brand-dot">.</span>
+        <h1 className="wordmark" aria-label="Done & Gone">
+          <Image
+            className="brand-light"
+            src={lightLogo}
+            alt=""
+            unoptimized
+            loading="eager"
+          />
+          <Image
+            className="brand-dark"
+            src={darkLogo}
+            alt=""
+            unoptimized
+            loading="eager"
+          />
         </h1>
         <div className="header-actions">
           <button
@@ -271,8 +277,6 @@ export default function BoardView() {
                 aria-label={column.name}
               >
                 <div className="column-header">
-                  <span aria-hidden="true" className="column-dot" />
-                  <h2 dir="auto">{column.name}</h2>
                   <button
                     className="drag-handle column-drag-handle"
                     data-drag-kind="column"
@@ -289,12 +293,7 @@ export default function BoardView() {
                   >
                     <span aria-hidden="true">⠿</span>
                   </button>
-                  <span
-                    className="card-count"
-                    aria-label={`${column.cards.length} cards`}
-                  >
-                    {column.cards.length}
-                  </span>
+                  <h2 dir="auto">{column.name}</h2>
                   <button
                     id={`add-${column.id}`}
                     disabled={!editing || saving}
@@ -576,7 +575,7 @@ export default function BoardView() {
               </p>
             </Confirmation>
           )}
-          <p className="save-status" role="status">
+          <p className="sr-only" role="status">
             {!editing
               ? "Read-only · Saved on this device"
               : saving

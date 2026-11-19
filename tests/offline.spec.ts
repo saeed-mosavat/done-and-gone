@@ -13,7 +13,7 @@ test("a prepared board reopens offline and saves card changes across reloads", a
   const offline = await context.newPage();
   await offline.goto("/");
   await expect(offline.getByRole("article")).toContainText(
-    "Welcome to Doneward"
+    "Welcome to Done & Gone"
   );
   await offline
     .getByRole("button", { name: "Add a card", exact: true })
@@ -50,7 +50,7 @@ test("a prepared board reopens offline and saves card changes across reloads", a
   await offline.reload();
   await expect(offline.getByRole("article")).toHaveCount(1);
   await expect(offline.getByRole("article")).toContainText(
-    "Welcome to Doneward"
+    "Welcome to Done & Gone"
   );
 });
 
@@ -71,9 +71,11 @@ test("offline column management, movement, ordering, and backup round trips surv
     .press("Enter");
   await saved();
   await page.getByRole("article").click();
+  await page.getByRole("button", { name: "Move card", exact: true }).click();
   await page
     .getByLabel("Column", { exact: true })
     .selectOption({ label: "1. Doing" });
+  await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await saved();
   await doing.getByRole("button", { name: "Add a card", exact: true }).click();
@@ -81,7 +83,9 @@ test("offline column management, movement, ordering, and backup round trips surv
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await saved();
   await doing.getByRole("article").last().click();
+  await page.getByRole("button", { name: "Move card", exact: true }).click();
   await page.getByLabel("Position", { exact: true }).selectOption("0");
+  await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await saved();
   await page.getByRole("button", { name: "Add column", exact: true }).click();
@@ -120,7 +124,7 @@ test("offline column management, movement, ordering, and backup round trips surv
   ]);
   await expect(page.getByRole("heading", { level: 3 })).toHaveText([
     "Next قدم",
-    "Welcome to Doneward",
+    "Welcome to Done & Gone",
   ]);
   await page.getByRole("button", { name: "Backups", exact: true }).click();
   const downloadPromise = page.waitForEvent("download");
@@ -165,7 +169,7 @@ test("offline column management, movement, ordering, and backup round trips surv
   ]);
   await expect(reopened.getByRole("heading", { level: 3 })).toHaveText([
     "Next قدم",
-    "Welcome to Doneward",
+    "Welcome to Done & Gone",
   ]);
 });
 

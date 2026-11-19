@@ -38,7 +38,9 @@ test("a first visit saves the starter board and keeps it across reloads", async 
     "Done",
   ]);
   await expect(page.getByRole("article")).toHaveCount(1);
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
   await expect(page.getByRole("status")).toHaveText("Saved on this device");
 
   await page.reload();
@@ -48,7 +50,9 @@ test("a first visit saves the starter board and keeps it across reloads", async 
     "Done",
   ]);
   await expect(page.getByRole("article")).toHaveCount(1);
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
   await expect(page.getByRole("status")).toHaveText("Saved on this device");
 });
 
@@ -299,10 +303,11 @@ test("the blue board-first canvas keeps columns side by side on desktop and narr
   const columns = page.getByRole("region");
   const board = page.getByRole("region", { name: "Board", exact: true });
   await expect(board).toBeVisible();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Doneward.");
-  await expect(page.getByLabel("2 cards", { exact: true })).toHaveText("2");
-  await expect(page.getByLabel("1 cards", { exact: true })).toHaveText("1");
-  await expect(page.getByLabel("0 cards", { exact: true })).toHaveText("0");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+    "Done & Gone"
+  );
+  await expect(page.locator(".card-count")).toHaveCount(0);
+  await expect(page.getByRole("article")).toHaveCount(3);
   await expect(
     page.getByRole("button", { name: "Add card", exact: true })
   ).toHaveCount(3);
@@ -360,16 +365,18 @@ test("the starter board matches the approved direction in both themes and narrow
   page,
 }) => {
   await page.goto("/");
+  await expect(page).toHaveTitle("Done & Gone");
   await expect(page.getByRole("status")).toHaveText("Saved on this device");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Doneward.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+    "Done & Gone"
+  );
   await expect(page.getByRole("heading", { level: 2 })).toHaveText([
     "Todo",
     "Doing",
     "Done",
   ]);
   await expect(page.getByRole("article")).toHaveCount(1);
-  await expect(page.getByLabel("1 cards", { exact: true })).toHaveCount(1);
-  await expect(page.getByLabel("0 cards", { exact: true })).toHaveCount(2);
+  await expect(page.locator(".card-count")).toHaveCount(0);
   const board = page.getByRole("region", { name: "Board", exact: true });
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 960 });
@@ -382,6 +389,12 @@ test("the starter board matches the approved direction in both themes and narrow
     }
     for (const colorScheme of ["light", "dark"] as const) {
       await page.emulateMedia({ colorScheme });
+      const logo = page.locator(`.brand-${colorScheme}`);
+      await expect(logo).toBeVisible();
+      await expect(logo).toHaveJSProperty("complete", true);
+      expect(
+        await logo.evaluate((image) => (image as HTMLImageElement).naturalWidth)
+      ).toBeGreaterThan(0);
       await expect(page.getByRole("main")).toHaveScreenshot(
         `starter-${width}-${colorScheme}.png`,
         {

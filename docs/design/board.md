@@ -17,16 +17,22 @@
 
 - A minimal header: Doneward's logo and wordmark on the left; a compact theme control on the right.
 - The board follows directly below the header. No page title, hero, subtitle, tagline, sidebar, dashboard, or global New card banner.
+- Maintainer refinement (2026-11-19): use compact page padding and a smaller wordmark/header so columns start within the top 90px on desktop and narrow screens. The board fills the remaining viewport height.
+- Do not show a persistent saved-on-this-device footer. Keep saving announcements available to assistive technology and storage failures visibly actionable.
 - Side-by-side columns occupy the available board area, with generous vertical space. Narrow viewports scroll columns horizontally instead of stacking them vertically.
-- Each column header shows a subtle colored dot, its user-defined name, a card count, and an add-card button. A second Add a card action follows its cards.
+- Each column header starts with its drag handle, followed by its user-defined name and an add-card button. Do not display colored dots or card-count indicators. A second Add a card action follows its cards.
+- Column titles use prominent 18px type and wrap long mixed-direction names without displacing the column controls.
 - A narrow, borderless Add column action follows the last column on the right, with a plus icon above a vertically oriented label, as shown in the visual references.
 - Column contextual actions pair icons with text labels. Clicking or tapping outside an open column menu closes it without blocking the outside action.
 - Cards show their title and optional description. The entire card opens the editor. No Open card label, decorative ellipsis, or card footer is needed.
+- Card previews are at most 240px high: titles show at most two lines and descriptions at most six lines. Keep the full original content available in the editor, saved data, and backups; clipping is visual only.
 - Do not infer fixed status semantics from column names or positions: columns are customizable. The prototype's muted Done cards are illustrative, not a requirement to mark a renamed or third column completed.
 
 ## Palette and treatment
 
 Use a blue-toned visual system: cool near-white page background, pale blue column surfaces, white cards, dark navy primary text, muted blue-gray secondary text, and blue actions/focus indicators. Dark mode keeps the blue character with deep navy surfaces and light text.
+
+Follow the system theme until the user chooses light or dark. Persist that choice across refreshes and tabs; unavailable preference storage must not disable the toggle.
 
 Reference tokens from the approved prototype:
 
@@ -45,7 +51,7 @@ These are starting tokens, not a completed accessibility audit. Adjust contrast 
 ## Card creation and editing
 
 - A column's add-card action opens a New card dialog already bound to that column. **Hide the column selector in this creation flow.**
-- Clicking anywhere on an existing card opens Edit card. Keep a column selector or equivalent accessible movement control for existing cards.
+- Clicking anywhere on an existing card opens Edit card. On desktop (above 600px), omit Column and Position inputs from the edit form; a separate Move card dialog keeps non-drag movement available. Its choices remain drafts until the card is saved. On narrow screens, retain the inline movement controls.
 - The dialog has title and description fields, Save and Cancel, and a close control. Keep the specification's unsaved-edit discard confirmation.
 - Preserve required-title validation, input limits, automatic persistence of committed edits, and accessible keyboard/touch paths from issue #1.
 

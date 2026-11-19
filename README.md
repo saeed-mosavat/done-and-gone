@@ -1,4 +1,4 @@
-# Doneward
+# Done & Gone
 
 A local-first personal task board. Open a single board on this device, add cards within each column, and open any card to edit, move, reorder, or delete it. Card drafts require explicit Save; dismissing changed drafts asks before discarding. Drag cards directly to move or reorder them, use column handles to reorder columns, or use the card editor and column menus without dragging. Dragging a card to the red delete zone asks for confirmation; cancellation preserves its original position. On touch screens, hold a card or a column handle to start dragging; ordinary swipes still scroll the board. Add columns on the right; use each column's contextual actions to rename it or confirm deletion, choosing whether to transfer or delete its cards. At least one column always remains. Committed changes save automatically to IndexedDB. Export complete backups or replace the board by importing a validated backup through the header's Backups control.
 
@@ -12,6 +12,12 @@ npm run dev
 ```
 
 Open http://localhost:3000. For a production build, run `npm run build`, then `npm start`.
+
+The theme follows the system until explicitly toggled. Your choice is stored on this browser and reused across refreshes and tabs. If preference storage is unavailable, toggling still works for the current visit.
+
+On desktop, the card editor focuses on title and description; **Move card** opens a separate destination/position dialog. Choose **Done**, then **Save** the card to apply movement. Narrow screens retain inline movement controls.
+
+Cards show compact previews (up to two title lines and six description lines, at most 240px high). Open a card to read or edit its complete text; previews never truncate saved content.
 
 ## Checks
 

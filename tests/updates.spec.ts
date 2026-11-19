@@ -21,7 +21,7 @@ test("a real prepared update waits, protects a draft, and reloads only on reques
   await expect(
     editor.getByText("Update available", { exact: true })
   ).toBeVisible();
-  await expect(page).toHaveTitle("Doneward revision 1");
+  await expect(page).toHaveTitle("Done & Gone revision 1");
   await expect(page.getByLabel("Title", { exact: true })).toHaveValue(
     "یادداشت Draft 123"
   );
@@ -49,7 +49,7 @@ test("a real prepared update waits, protects a draft, and reloads only on reques
     .press("Enter");
   await expect(page.getByRole("status")).toHaveText("Saved on this device");
   await page.getByRole("button", { name: "Reload to update" }).press("Enter");
-  await expect(page).toHaveTitle("Doneward revision 2");
+  await expect(page).toHaveTitle("Done & Gone revision 2");
   await expect(page.getByRole("article")).toContainText("یادداشت Draft 123");
   await expect(page.getByRole("article")).toContainText("فارسی English");
   await expect(page.getByText("Update available", { exact: true })).toHaveCount(
@@ -76,10 +76,10 @@ test("discarding a card draft to update preserves saved content and board order"
   await checkForUpdate(page);
   await page.getByRole("button", { name: "Reload to update" }).press("Enter");
   await page.getByRole("button", { name: "Discard and reload" }).press("Enter");
-  await expect(page).toHaveTitle("Doneward revision 2");
+  await expect(page).toHaveTitle("Done & Gone revision 2");
   await expect(page.getByRole("article")).toHaveCount(2);
   await expect(page.getByRole("article").first()).toContainText(
-    "Welcome to Doneward"
+    "Welcome to Done & Gone"
   );
   await expect(page.getByRole("article").last()).toHaveText("Saved second");
   await page.reload();
@@ -101,15 +101,15 @@ test("an update applied in another tab never reloads the editor or loses its dra
   deployment.publish();
   await checkForUpdate(reader);
   await reader.getByRole("button", { name: "Reload to update" }).click();
-  await expect(reader).toHaveTitle("Doneward revision 2");
-  await expect(page).toHaveTitle("Doneward revision 1");
+  await expect(reader).toHaveTitle("Done & Gone revision 2");
+  await expect(page).toHaveTitle("Done & Gone revision 1");
   await expect(page.getByLabel("Title", { exact: true })).toHaveValue(
     "Still editing"
   );
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByRole("status")).toHaveText("Saved on this device");
   await page.getByRole("button", { name: "Reload to update" }).click();
-  await expect(page).toHaveTitle("Doneward revision 2");
+  await expect(page).toHaveTitle("Done & Gone revision 2");
   await expect(page.getByRole("article").getByRole("heading")).toHaveText(
     "Still editing"
   );
@@ -195,7 +195,7 @@ for (const width of [1440, 390]) {
       await page
         .getByRole("button", { name: "Reload to update" })
         .press("Enter");
-      await expect(page).toHaveTitle("Doneward revision 2");
+      await expect(page).toHaveTitle("Done & Gone revision 2");
       await expect(page.getByRole("article")).toContainText(
         "پیش‌نویس Draft 123"
       );
@@ -203,7 +203,7 @@ for (const width of [1440, 390]) {
       await expect(page).toHaveScreenshot(`updated-${width}-${theme}.png`);
       await context.setOffline(true);
       await page.reload();
-      await expect(page).toHaveTitle("Doneward revision 2");
+      await expect(page).toHaveTitle("Done & Gone revision 2");
       await expect(page.getByRole("article")).toContainText(
         "پیش‌نویس Draft 123"
       );
@@ -236,8 +236,10 @@ test("a failed update preparation leaves the previously prepared app usable offl
   );
   await context.setOffline(true);
   await page.reload();
-  await expect(page).toHaveTitle("Doneward revision 1");
-  await expect(page.getByRole("article")).toContainText("Welcome to Doneward");
+  await expect(page).toHaveTitle("Done & Gone revision 1");
+  await expect(page.getByRole("article")).toContainText(
+    "Welcome to Done & Gone"
+  );
 });
 
 test("a column draft can defer an update, save, and then reload", async ({
@@ -258,7 +260,7 @@ test("a column draft can defer an update, save, and then reload", async ({
   await page.getByRole("button", { name: "Save", exact: true }).press("Enter");
   await expect(page.getByRole("status")).toHaveText("Saved on this device");
   await page.getByRole("button", { name: "Reload to update" }).press("Enter");
-  await expect(page).toHaveTitle("Doneward revision 2");
+  await expect(page).toHaveTitle("Done & Gone revision 2");
   await expect(page.getByRole("heading", { level: 2 }).last()).toHaveText(
     "برنامه Queue"
   );
@@ -283,9 +285,9 @@ test.describe("touch updates", () => {
     );
     await page.getByRole("button", { name: "Reload to update" }).tap();
     await page.getByRole("button", { name: "Discard and reload" }).tap();
-    await expect(page).toHaveTitle("Doneward revision 2");
+    await expect(page).toHaveTitle("Done & Gone revision 2");
     await expect(page.getByRole("article")).toContainText(
-      "Welcome to Doneward"
+      "Welcome to Done & Gone"
     );
   });
 });

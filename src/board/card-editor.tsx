@@ -1,6 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Card, Column } from "./storage";
 import { Confirmation, containDialogFocus } from "./confirmation";
+
+const desktopQuery = "(min-width: 601px)";
+function subscribeToViewport(notify: () => void) {
+  const media = window.matchMedia(desktopQuery);
+  media.addEventListener("change", notify);
+  return () => media.removeEventListener("change", notify);
+}
 
 export function CardEditor({
   card,
@@ -25,6 +32,12 @@ export function CardEditor({
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [validation, setValidation] = useState<string>();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [movementOpen, setMovementOpen] = useState(false);
+  const desktop = useSyncExternalStore(
+    subscribeToViewport,
+    () => window.matchMedia(desktopQuery).matches,
+    () => false
+  );
   const initialPosition = card
     ? columns
         .find((column) => column.id === columnId)!
@@ -55,6 +68,47 @@ export function CardEditor({
       if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
     };
   }, []);
+  const movementFields = card && (
+    <>
+      <label htmlFor="card-column">Column</label>
+      <select
+        id="card-column"
+        value={destination}
+        onChange={(event) => {
+          const id = event.target.value;
+          setDestination(id);
+          setPosition(
+            columns
+              .find((column) => column.id === id)!
+              .cards.filter((existing) => existing.id !== card.id).length
+          );
+        }}
+      >
+        {columns.map((column, index) => (
+          <option key={column.id} value={column.id} dir="auto">
+            {index + 1}. {column.name}
+          </option>
+        ))}
+      </select>
+      <label htmlFor="card-position">Position</label>
+      <select
+        id="card-position"
+        value={position}
+        onChange={(event) => setPosition(Number(event.target.value))}
+      >
+        {Array.from({ length: destinationCards.length + 1 }, (_, index) => (
+          <option key={index} value={index}>
+            {index + 1}
+            {index === 0
+              ? " (first)"
+              : index === destinationCards.length
+                ? " (last)"
+                : ""}
+          </option>
+        ))}
+      </select>
+    </>
+  );
   return (
     <dialog
       ref={dialog}
@@ -125,51 +179,13 @@ export function CardEditor({
           onChange={(event) => setDescription(event.target.value)}
         />
         {validation && <p role="alert">{validation}</p>}
-        {card && (
-          <>
-            <label htmlFor="card-column">Column</label>
-            <select
-              id="card-column"
-              value={destination}
-              onChange={(event) => {
-                const id = event.target.value;
-                setDestination(id);
-                setPosition(
-                  columns
-                    .find((column) => column.id === id)!
-                    .cards.filter((existing) => existing.id !== card.id).length
-                );
-              }}
-            >
-              {columns.map((column, index) => (
-                <option key={column.id} value={column.id} dir="auto">
-                  {index + 1}. {column.name}
-                </option>
-              ))}
-            </select>
-            <label htmlFor="card-position">Position</label>
-            <select
-              id="card-position"
-              value={position}
-              onChange={(event) => setPosition(Number(event.target.value))}
-            >
-              {Array.from(
-                { length: destinationCards.length + 1 },
-                (_, index) => (
-                  <option key={index} value={index}>
-                    {index + 1}
-                    {index === 0
-                      ? " (first)"
-                      : index === destinationCards.length
-                        ? " (last)"
-                        : ""}
-                  </option>
-                )
-              )}
-            </select>
-          </>
-        )}
+        {!desktop && movementFields}
         <div className="dialog-actions">
+          {card && desktop && (
+            <button type="button" onClick={() => setMovementOpen(true)}>
+              Move card
+            </button>
+          )}
           {card && (
             <button
               className="danger"
@@ -187,6 +203,11 @@ export function CardEditor({
           </button>
         </div>
       </form>
+      {card && desktop && movementOpen && (
+        <CardMovementDialog onClose={() => setMovementOpen(false)}>
+          {movementFields}
+        </CardMovementDialog>
+      )}
       {confirmDiscard && (
         <Confirmation
           title="Discard unsaved edits?"
@@ -211,6 +232,53 @@ export function CardEditor({
           </p>
         </Confirmation>
       )}
+    </dialog>
+  );
+}
+
+function CardMovementDialog({
+  children,
+  onClose,
+}: {
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const element = dialog.current!;
+    const opener = document.activeElement;
+    element.showModal();
+    element.querySelector("select")!.focus();
+    return () => {
+      element.close();
+      if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+    };
+  }, []);
+  return (
+    <dialog
+      ref={dialog}
+      className="card-dialog"
+      aria-labelledby="movement-heading"
+      onKeyDown={containDialogFocus}
+      onCancel={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onClose();
+      }}
+    >
+      <div className="dialog-header">
+        <h2 id="movement-heading">Move card</h2>
+        <button type="button" aria-label="Close" onClick={onClose}>
+          ×
+        </button>
+      </div>
+      <p>Choose a destination, then save the card to apply it.</p>
+      {children}
+      <div className="dialog-actions">
+        <button type="button" className="primary" onClick={onClose}>
+          Done
+        </button>
+      </div>
     </dialog>
   );
 }
