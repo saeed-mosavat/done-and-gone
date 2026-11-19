@@ -1,5 +1,9 @@
-// Kept as a template so the HTTP route can embed this deployment's immutable assets.
-export function workerSource(version: string, assets: string[]) {
+// Generated into public/sw.js after the build, with this deployment's assets.
+/**
+ * @param {string} version
+ * @param {string[]} assets
+ */
+export function workerSource(version, assets) {
   return `
 const CACHE = ${JSON.stringify(`doneward-app-${version}`)};
 const ASSETS = ${JSON.stringify(assets)};
