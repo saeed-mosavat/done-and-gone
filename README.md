@@ -50,6 +50,10 @@ The browser owns the board; no server database or account is used. IndexedDB dat
 
 Only an absent key triggers starter-board creation. Invalid or unreadable saved data displays an error without replacement; writes count as saved only after the transaction commits. Full recovery controls belong to a later ticket. Clearing browser site data can remove the board.
 
+## Installing on Android
+
+In Chrome, install the app from the browser menu to open it without Chrome's title/domain toolbar. Android's status and navigation bars remain visible. If you added a home-screen shortcut before standalone installation was configured, export a backup first, remove the old shortcut, then revisit the site in Chrome and install again after the latest application update is applied. Do not clear site data: the board is stored on this device.
+
 ## Offline use and updates
 
 In production over HTTPS (or localhost), a service worker prepares the complete application shell and immutable assets after the first online visit. Once preparation finishes, the board can be closed and reopened offline; all delivered local board features still work, including saves and backups. Preparation is atomic: a failed download does not replace the previously prepared application. Browser site-data clearing or storage eviction can remove offline availability, so keep exported backups outside the browser.
